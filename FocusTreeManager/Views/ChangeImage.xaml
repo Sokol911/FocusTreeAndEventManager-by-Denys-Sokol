@@ -6,7 +6,7 @@
         xmlns:ignore="http://www.galasoft.ch/ignore"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d ignore" GlowBrush="{DynamicResource AccentColorBrush}"
-        ResizeMode="NoResize" SizeToContent="WidthAndHeight" Title="{DynamicResource Chose_Image_Title}" 
+        ResizeMode="NoResize" Title="{DynamicResource Chose_Image_Title}" 
         WindowStartupLocation="CenterScreen" Icon="/FocusTreeManager;component/GFX/Focus/goal_unknown.png">
     <Window.Resources>
         <ResourceDictionary>
@@ -16,29 +16,50 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <ScrollViewer>
-        <ItemsControl ItemsSource="{Binding ImageList}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid Margin="10">
-                        <Image Height="180" x:Name="ImageToChose"
-                               Source="{Binding Image}" MaxWidth="{Binding MaxWidth}" 
-                               ToolTip="{Binding Filename}"/>
-                        <!--:Loader.DisplayOption="FullResolution"
-                               l:Loader. />-->
-                        <Button Content="{DynamicResource Command_Select}" 
-                                Command="{Binding ChangeImage.SelectCommand, Source={StaticResource Locator}}" 
-                                CommandParameter="{Binding Filename}" 
-                                Height="25" Width="150" VerticalAlignment="Bottom"
-                                Style="{DynamicResource AppButtonStyle}" />
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </ScrollViewer>
+    <!-- One list item per row of pictures: the list creates only the rows that are on the
+         screen, so the window opens at once even if the game has thousands of pictures -->
+    <ListBox ItemsSource="{Binding ImageList}" Background="Transparent" BorderThickness="0"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ScrollViewer.CanContentScroll="True"
+             VirtualizingPanel.IsVirtualizing="True"
+             VirtualizingPanel.VirtualizationMode="Recycling"
+             VirtualizingPanel.ScrollUnit="Pixel">
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <ContentPresenter/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="10" Width="{Binding CellWidth}">
+                                <Image Height="180" x:Name="ImageToChose"
+                                       Source="{Binding Image}" MaxWidth="{Binding MaxWidth}"
+                                       ToolTip="{Binding Filename}"/>
+                                <Button Content="{DynamicResource Command_Select}"
+                                        Command="{Binding ChangeImage.SelectCommand, Source={StaticResource Locator}}"
+                                        CommandParameter="{Binding Filename}"
+                                        Height="25" Width="150" VerticalAlignment="Bottom"
+                                        Style="{DynamicResource AppButtonStyle}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
 </Controls:MetroWindow>

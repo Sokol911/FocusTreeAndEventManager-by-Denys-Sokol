@@ -408,8 +408,8 @@ namespace FocusTreeManager.Model
 
         public void ChangeImage()
         {
-            ChangeImage view = new ChangeImage();
             ViewModelLocator.Instance.ChangeImage.LoadImages("Events", Picture);
+            ChangeImage view = new ChangeImage();
             view.ShowDialog();
             Picture = ViewModelLocator.Instance.ChangeImage.FocusImage;
         }

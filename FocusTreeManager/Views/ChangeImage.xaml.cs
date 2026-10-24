@@ -22,14 +22,20 @@ namespace FocusTreeManager.Views
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
             MaxHeight = SystemParameters.PrimaryScreenHeight * 0.90;
             MaxWidth = SystemParameters.PrimaryScreenWidth * 0.90;
-            DataContext = (ViewModelLocator.Instance).ChangeImage;
+            Height = MaxHeight;
+            ChangeImageViewModel model = ViewModelLocator.Instance.ChangeImage;
+            DataContext = model;
+            //The images are loaded before the window is created, see LoadImages
+            Width = Math.Min(MaxWidth, model.WindowWidth > 0 ? model.WindowWidth : MaxWidth);
+            //The window is created every time, do not keep the old ones alive
+            Closed += (s, e) => Messenger.Default.Unregister(this);
         }
 
         private void NotificationMessageReceived(NotificationMessage msg)
         {
             if (msg.Notification == "HideChangeImage")
             {
-                Hide();
+                Close();
             }
             if (msg.Notification == "ChangeLanguage")
             {
