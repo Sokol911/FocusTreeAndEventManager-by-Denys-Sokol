@@ -113,34 +113,41 @@ namespace FocusTreeManager.Model
 
         public bool ContainsPoint(Point point)
         {
-            LineGeometry lineGeo = new LineGeometry(new Point(X1, Y1), new Point(X2, Y2));
-            Point leftPoint;
-            Point rightPoint;
+            //This is called for every line on every mouse move, so no LineGeometry / Point
+            //objects are allocated here anymore (the maths are exactly the same).
+            double leftX;
+            double leftY;
+            double rightX;
+            double rightY;
             // Normalize start/end to left right to make the offset calc simpler.
-            if (lineGeo.StartPoint.X <= lineGeo.EndPoint.X)
+            if (x1 <= x2)
             {
-                leftPoint = lineGeo.StartPoint;
-                rightPoint = lineGeo.EndPoint;
+                leftX = x1;
+                leftY = y1;
+                rightX = x2;
+                rightY = y2;
             }
             else
             {
-                leftPoint = lineGeo.EndPoint;
-                rightPoint = lineGeo.StartPoint;
+                leftX = x2;
+                leftY = y2;
+                rightX = x1;
+                rightY = y1;
             }
             // If point is out of bounds, no need to do further checks.                  
-            if (point.X + SELECTION_FUZZINESS < leftPoint.X
-                || rightPoint.X < point.X - SELECTION_FUZZINESS)
+            if (point.X + SELECTION_FUZZINESS < leftX
+                || rightX < point.X - SELECTION_FUZZINESS)
             {
                 return false;
 
             }
-            if (point.Y + SELECTION_FUZZINESS < Math.Min(leftPoint.Y, rightPoint.Y) ||
-                Math.Max(leftPoint.Y, rightPoint.Y) < point.Y - SELECTION_FUZZINESS)
+            if (point.Y + SELECTION_FUZZINESS < Math.Min(leftY, rightY) ||
+                Math.Max(leftY, rightY) < point.Y - SELECTION_FUZZINESS)
             {
                 return false;
             }
-            double deltaX = rightPoint.X - leftPoint.X;
-            double deltaY = rightPoint.Y - leftPoint.Y;
+            double deltaX = rightX - leftX;
+            double deltaY = rightY - leftY;
             // If the line is straight, the earlier boundary check is enough
             // to determine that the point is on the line.
             // Also prevents division by zero exceptions.
@@ -149,7 +156,7 @@ namespace FocusTreeManager.Model
                 return true;
             }
             double slope = deltaY / deltaX;
-            double offset = leftPoint.Y - leftPoint.X * slope;
+            double offset = leftY - leftX * slope;
             double calculatedY = point.X * slope + offset;
             // Check calculated Y matches the points Y coord with some easing.
             bool lineContains = point.Y - SELECTION_FUZZINESS 

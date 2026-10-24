@@ -59,7 +59,7 @@ namespace FocusTreeManager.ViewModel
             {
                 Point mousePos = Mouse.GetPosition((IInputElement)sender);
                 FocusModel localFocus = new FocusModel();
-                FocusGridModel firstOrDefault = new ViewModelLocator().Main.SelectedTab as FocusGridModel;
+                FocusGridModel firstOrDefault = ViewModelLocator.Instance.Main.SelectedTab as FocusGridModel;
                 if (firstOrDefault != null)
                 {
                     localFocus.setDefaults(firstOrDefault
@@ -81,20 +81,20 @@ namespace FocusTreeManager.ViewModel
         public void CloseEditFocus()
         {
             Messenger.Default.Send(new NotificationMessage(this, 
-                new ViewModelLocator().Main.SelectedTab, "CloseEditFocus"));
+                ViewModelLocator.Instance.Main.SelectedTab, "CloseEditFocus"));
         }
 
         public void ChangeImage()
         {
             ChangeImage view = new ChangeImage();
-            new ViewModelLocator().ChangeImage.LoadImages("Focus", Focus.Image);
+            ViewModelLocator.Instance.ChangeImage.LoadImages("Focus", Focus.Image);
             view.ShowDialog();
-            Focus.Image = new ViewModelLocator().ChangeImage.FocusImage;
+            Focus.Image = ViewModelLocator.Instance.ChangeImage.FocusImage;
         }
 
         public void EditScript()
         {
-            ScripterViewModel ViewModel = new ViewModelLocator().Scripter;
+            ScripterViewModel ViewModel = ViewModelLocator.Instance.Scripter;
             ViewModel.ScriptType = ScripterType.FocusTree;
             ViewModel.ManagedScript = focus.InternalScript;
             EditScript dialog = new EditScript();

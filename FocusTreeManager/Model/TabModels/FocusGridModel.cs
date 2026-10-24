@@ -7,10 +7,12 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FocusTreeManager.DataContract;
+using FocusTreeManager.Helper;
 using FocusTreeManager.Parsers;
 using FocusTreeManager.ViewModel;
 using FocusTreeManager.Views;
@@ -84,6 +86,8 @@ namespace FocusTreeManager.Model.TabModels
         public RelayCommand CopyElementCommand { get; private set; }
 
         public RelayCommand ShowHidePositionLinesCommand { get; private set; }
+
+        public RelayCommand ValidateCommand { get; private set; }
 
         public RelayCommand CopyCommand { get; private set; }
 
@@ -223,6 +227,9 @@ namespace FocusTreeManager.Model.TabModels
         public FocusGridModel(FociGridContainer container)
         {
             SetupCommons();
+            //SetupCommons already subscribed, which made every later change be recorded twice
+            //in the undo history (the subscription is done once, after loading, below)
+            FociList.CollectionChanged -= FociList_CollectionChanged;
             //Transfer data
             UniqueID = container.IdentifierID;
             visibleName = container.ContainerID;
@@ -232,12 +239,15 @@ namespace FocusTreeManager.Model.TabModels
             {
                 FociList.Add(new FocusModel(focus));
             }
-            //Rerun to create sets
+            //Rerun to create sets, with lookups built once instead of searching the lists
+            //(and copying the whole list) for every single focus
+            NameLookup<Focus> sources = new NameLookup<Focus>(container.FociList,
+                f => f.UniqueName);
+            NameLookup<FocusModel> models = new NameLookup<FocusModel>(FociList,
+                f => f.UniqueName);
             foreach (FocusModel model in FociList)
             {
-                model.RepairSets(
-                    container.FociList.FirstOrDefault(f => f.UniqueName == model.UniqueName),
-                    FociList.ToList());
+                model.RepairSets(sources.Find(model.UniqueName), models);
             }
             //Create the remaining stuff
             FociList.CollectionChanged += FociList_CollectionChanged;
@@ -248,6 +258,9 @@ namespace FocusTreeManager.Model.TabModels
         public FocusGridModel(FocusGridModel model)
         {
             SetupCommons();
+            //SetupCommons already subscribed, which made every later change be recorded twice
+            //in the undo history (the subscription is done once, after loading, below)
+            FociList.CollectionChanged -= FociList_CollectionChanged;
             //Transfer data
             UniqueID = Guid.NewGuid();
             visibleName = model.visibleName;
@@ -257,16 +270,26 @@ namespace FocusTreeManager.Model.TabModels
             {
                 FociList.Add(new FocusModel(focus));
             }
-            //Rerun to create sets
+            //Rerun to create sets, with lookups built once
+            NameLookup<FocusModel> sources = new NameLookup<FocusModel>(model.FociList,
+                f => f.UniqueName);
+            NameLookup<FocusModel> copies = new NameLookup<FocusModel>(FociList,
+                f => f.UniqueName);
             foreach (FocusModel focus in FociList)
             {
-                focus.RepairSets(model.FociList.FirstOrDefault(f => f.UniqueName == focus.UniqueName),
-                    FociList.ToList());
+                focus.RepairSets(sources.Find(focus.UniqueName), copies);
             }
             //Create the remaining stuff
             FociList.CollectionChanged += FociList_CollectionChanged;
             //Min Row & column Count
             EditGridDefinition();
+        }
+
+        private void ValidateTree()
+        {
+            List<ValidationIssue> issues = FocusTreeValidator.Validate(FociList);
+            DialogCoordinator.Instance.ShowMessageAsync(ViewModelLocator.Instance.Main,
+                "Tree check", FocusTreeValidator.Summarize(issues, 15));
         }
 
         internal void SetupCommons()
@@ -284,6 +307,7 @@ namespace FocusTreeManager.Model.TabModels
             EditElementCommand = new RelayCommand(SendEditSignal);
             CopyElementCommand = new RelayCommand(SendCopySignal);
             ShowHidePositionLinesCommand = new RelayCommand(ShowHidePositionLines);
+            ValidateCommand = new RelayCommand(ValidateTree);
             CopyCommand = new RelayCommand(Copy, CanCopy);
             PasteCommand = new RelayCommand<object>(Paste, CanPaste);
             //Messenger
@@ -535,11 +559,18 @@ namespace FocusTreeManager.Model.TabModels
         public void Hover(object sender)
         {
             Point Position = Mouse.GetPosition((Grid)sender);
-            List<CanvasLine> clickedElements = CanvasLines.Where(line =>
-                                               line.ContainsPoint(Position)).ToList();
-            if (clickedElements.Any())
+            //Called on every mouse move: stop at the first line under the mouse instead of
+            //building a list of all of them
+            CanvasLine hoveredLine = null;
+            foreach (CanvasLine line in CanvasLines)
             {
-                selectedLine = clickedElements.FirstOrDefault();
+                if (!line.ContainsPoint(Position)) continue;
+                hoveredLine = line;
+                break;
+            }
+            if (hoveredLine != null)
+            {
+                selectedLine = hoveredLine;
                 Messenger.Default.Send(new NotificationMessage("DrawOnCanvas"));
             }
             else
@@ -554,19 +585,19 @@ namespace FocusTreeManager.Model.TabModels
         private void SendDeleteSignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendDeleteItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendDeleteItemSignal"));
         }
 
         private void SendEditSignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendEditItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendEditItemSignal"));
         }
 
         private void SendCopySignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendCopyItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendCopyItemSignal"));
         }
 
         private void ShowHidePositionLines()
@@ -642,7 +673,7 @@ namespace FocusTreeManager.Model.TabModels
                         Model?.MutualyExclusive.Add(tempo);
                         ChosenFocusForLink = null;
                         Messenger.Default.Send(new NotificationMessage(this,
-                            new ViewModelLocator().StatusBar, "Clear_message"));
+                            ViewModelLocator.Instance.StatusBar, "Clear_message"));
                         UndoService.Current[GetUndoRoot()].EndChangeSetBatch();
                         RaisePropertyChanged(() => FociList);
                         DrawOnCanvas();
@@ -684,7 +715,7 @@ namespace FocusTreeManager.Model.TabModels
                         ChosenFocusForLink.IsWaiting = false;
                         ChosenFocusForLink = null;
                         Messenger.Default.Send(new NotificationMessage(this,
-                            new ViewModelLocator().StatusBar, "Clear_message"));
+                            ViewModelLocator.Instance.StatusBar, "Clear_message"));
                         UndoService.Current[GetUndoRoot()].EndChangeSetBatch();
                         RaisePropertyChanged(() => FociList);
                         DrawOnCanvas();
@@ -713,7 +744,7 @@ namespace FocusTreeManager.Model.TabModels
                             ChosenFocusForLink.CoordinatesRelativeTo = Model;
                             ChosenFocusForLink = null;
                             Messenger.Default.Send(new NotificationMessage(this,
-                                new ViewModelLocator().StatusBar, "Clear_message"));
+                                ViewModelLocator.Instance.StatusBar, "Clear_message"));
                             UndoService.Current[GetUndoRoot()].EndChangeSetBatch();
                             RaisePropertyChanged(() => FociList);
                             DrawOnCanvas();
@@ -737,15 +768,33 @@ namespace FocusTreeManager.Model.TabModels
             {
                 //Resend to the tutorial View model if this was the target
                 Messenger.Default.Send(new NotificationMessage(msg.Sender,
-                new ViewModelLocator().Tutorial, msg.Notification));
+                ViewModelLocator.Instance.Tutorial, msg.Notification));
             }
         }
 
+        private bool redrawPending;
+
         public void UpdateFocus(FocusModel sender)
         {
-            if (new ViewModelLocator().Main.SelectedTab != this) return;
-            EditGridDefinition();
-            DrawOnCanvas();
+            if (ViewModelLocator.Instance.Main.SelectedTab != this) return;
+            //Every focus calls this when its position changes, so opening a tree or moving
+            //several foci used to redraw ALL the lines once per focus. The redraws asked
+            //for in the same burst are now merged into one.
+            if (redrawPending) return;
+            Dispatcher dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null)
+            {
+                EditGridDefinition();
+                DrawOnCanvas();
+                return;
+            }
+            redrawPending = true;
+            dispatcher.BeginInvoke(new Action(() =>
+            {
+                redrawPending = false;
+                EditGridDefinition();
+                DrawOnCanvas();
+            }), DispatcherPriority.Render);
         }
 
         private void DeleteFocus(FocusModel Model)
@@ -786,13 +835,68 @@ namespace FocusTreeManager.Model.TabModels
 
         private const double PRE_LINE_HEIGHT = 20;
 
+        /// <summary>
+        /// Incremented every time the lines are redrawn, lets the adorner know when its line
+        /// shapes are really out of date.
+        /// </summary>
+        public int LinesVersion { get; private set; }
+
+        private struct LineKey : IEquatable<LineKey>
+        {
+            private readonly double x1;
+            private readonly double y1;
+            private readonly double x2;
+            private readonly double y2;
+
+            public LineKey(double x1, double y1, double x2, double y2)
+            {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+            }
+
+            public bool Equals(LineKey other)
+            {
+                return x1 == other.x1 && y1 == other.y1 && x2 == other.x2 && y2 == other.y2;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is LineKey && Equals((LineKey) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                //"+ 0.0" turns -0.0 into 0.0, they are equal for == so they need the same hash
+                unchecked
+                {
+                    int hash = (x1 + 0.0).GetHashCode();
+                    hash = hash * 397 ^ (y1 + 0.0).GetHashCode();
+                    hash = hash * 397 ^ (x2 + 0.0).GetHashCode();
+                    hash = hash * 397 ^ (y2 + 0.0).GetHashCode();
+                    return hash;
+                }
+            }
+        }
+
+        private static void AddLine(List<CanvasLine> lines, HashSet<LineKey> keys, 
+                                    CanvasLine line)
+        {
+            lines.Add(line);
+            keys.Add(new LineKey(line.X1, line.Y1, line.X2, line.Y2));
+        }
+
         public void DrawOnCanvas()
         {
             if (FociList == null)
             {
                 return;
             }
-            CanvasLines.Clear();
+            //The lines are collected in a plain list, the duplicates check uses a hash set
+            //(it used to scan every existing line, and every Add notified the collection)
+            List<CanvasLine> lines = new List<CanvasLine>();
+            HashSet<LineKey> keys = new HashSet<LineKey>();
             foreach (FocusModel focus in FociList)
             {
                 //Draw relatives
@@ -804,7 +908,7 @@ namespace FocusTreeManager.Model.TabModels
                             focus.CoordinatesRelativeTo.FocusBottom.X,
                             focus.CoordinatesRelativeTo.FocusBottom.Y,
                             System.Windows.Media.Brushes.Gold, false, null, focus);
-                    CanvasLines.Add(newline);
+                    AddLine(lines, keys, newline);
                 }
                 //Draw Prerequisites
                 foreach (PrerequisitesSetModel set in focus.Prerequisite)
@@ -816,7 +920,7 @@ namespace FocusTreeManager.Model.TabModels
                         set.Focus.FocusTop.X,
                         set.Focus.FocusTop.Y - PRE_LINE_HEIGHT,
                         System.Windows.Media.Brushes.Teal, set.isRequired(), set);
-                    CanvasLines.Add(newline);
+                    AddLine(lines, keys, newline);
                     foreach (FocusModel model in set.FociList)
                     {
                         FocusModel Prerequisite = model;
@@ -826,13 +930,13 @@ namespace FocusTreeManager.Model.TabModels
                             set.Focus.FocusTop.Y - PRE_LINE_HEIGHT, Prerequisite.FocusBottom.X, 
                             set.Focus.FocusTop.Y - PRE_LINE_HEIGHT, System.Windows.Media.Brushes.Teal,
                             set.isRequired(), set);
-                        CanvasLines.Add(newline);
+                        AddLine(lines, keys, newline);
                         //Draw line to prerequisite bottom
                         newline = new CanvasLine(Prerequisite.FocusBottom.X, 
                             set.Focus.FocusTop.Y - PRE_LINE_HEIGHT, Prerequisite.FocusBottom.X, 
                             Prerequisite.FocusBottom.Y, System.Windows.Media.Brushes.Teal, 
                             set.isRequired(), set);
-                        CanvasLines.Add(newline);
+                        AddLine(lines, keys, newline);
                     }
                 }
                 //Draw Mutually exclusives
@@ -844,15 +948,15 @@ namespace FocusTreeManager.Model.TabModels
                         set.Focus2.FocusLeft.X,
                         set.Focus2.FocusLeft.Y,
                         System.Windows.Media.Brushes.Red, false, set);
-                    if (!CanvasLines.Any(line => line.X1 == newline.X1 &&
-                                                 line.X2 == newline.X2 &&
-                                                 line.Y1 == newline.Y1 &&
-                                                 line.Y2 == newline.Y2))
+                    if (!keys.Contains(new LineKey(newline.X1, newline.Y1, 
+                                                   newline.X2, newline.Y2)))
                     {
-                        CanvasLines.Add(newline);
+                        AddLine(lines, keys, newline);
                     }
                 }
             }
+            canvasLines = new ObservableCollection<CanvasLine>(lines);
+            LinesVersion++;
             RaisePropertyChanged(() => CanvasLines);
             Messenger.Default.Send(new NotificationMessage("DrawOnCanvas"));
         }
@@ -867,7 +971,7 @@ namespace FocusTreeManager.Model.TabModels
             //If the file was modified after the last modification date
             if (File.GetLastWriteTime(info.Filename) <= info.LastModifiedDate) return;
             //Then we can show a message
-            MessageDialogResult Result = await new ViewModelLocator()
+            MessageDialogResult Result = await ViewModelLocator.Instance
                 .Main.ShowFileChangedDialog();
             if (Result == MessageDialogResult.Affirmative)
             {
@@ -875,7 +979,7 @@ namespace FocusTreeManager.Model.TabModels
                 string newText = FocusTreeParser.ParseTreeScriptForCompare(info.Filename);
                 SideBySideDiffModel model = new SideBySideDiffBuilder(
                     new Differ()).BuildDiffModel(oldText, newText);
-                new ViewModelLocator().CodeComparator.DiffModel = model;
+                ViewModelLocator.Instance.CodeComparator.DiffModel = model;
                 new CompareCode().ShowDialog();
             }
         }
@@ -890,7 +994,7 @@ namespace FocusTreeManager.Model.TabModels
         
         public object GetUndoRoot()
         {
-            return (new ViewModelLocator()).Main;
+            return (ViewModelLocator.Instance).Main;
         }
 
         #endregion

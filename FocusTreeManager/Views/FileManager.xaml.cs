@@ -52,13 +52,13 @@ namespace FocusTreeManager.Views
                     FileEditor.Visibility = Visibility.Hidden;
                     FileTypeList.Visibility = Visibility.Visible;
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Tutorial, "ChosenNewFile"));
+                        ViewModelLocator.Instance.Tutorial, "ChosenNewFile"));
                     break;
                 case 1:
                     FileEditor.Visibility = Visibility.Visible;
                     FileTypeList.Visibility = Visibility.Hidden;
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Tutorial, "ChosenImportFile"));
+                        ViewModelLocator.Instance.Tutorial, "ChosenImportFile"));
                     break;
                 default:
                     FileTypeList.Visibility = Visibility.Hidden;
@@ -76,7 +76,7 @@ namespace FocusTreeManager.Views
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             //Check Tutorial
-            new ViewModelLocator().Tutorial.StartCommand.RaiseCanExecuteChanged();
+            ViewModelLocator.Instance.Tutorial.StartCommand.RaiseCanExecuteChanged();
         }
     }
 }

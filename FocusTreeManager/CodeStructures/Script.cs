@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace FocusTreeManager.CodeStructures
 {
@@ -93,19 +94,21 @@ namespace FocusTreeManager.CodeStructures
 
         public string Parse(Dictionary<int, string> comments = null, int StartLevel = -1)
         {
-            string content = "";
             //End here is the code is empty
             if (Code == null || !Code.Any())
             {
-                return content;
+                return "";
             }
+            //A StringBuilder, "content +=" copied the whole text again for every item
+            StringBuilder content = new StringBuilder();
             //Make a local copy, so we do not remove the master comments
             Dictionary<int, string> localCopy = Comments?.ToDictionary(t => t.Key, t => t.Value);
             foreach (ICodeStruct item in Code)
             {
                 try
                 {
-                    content += item.Parse(localCopy, StartLevel) + "\n";
+                    content.Append(item.Parse(localCopy, StartLevel));
+                    content.Append("\n");
                 }
                 catch (Exception)
                 {
@@ -113,7 +116,7 @@ namespace FocusTreeManager.CodeStructures
                     Logger.Errors.Add(new SyntaxError("Unknown error in script"));
                 }
             }
-            return content;
+            return content.ToString();
         }
 
         public CodeValue FindValue(string TagToFind)

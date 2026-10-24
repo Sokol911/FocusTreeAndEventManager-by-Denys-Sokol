@@ -52,7 +52,7 @@ namespace FocusTreeManager.Model
 
         public object GetUndoRoot()
         {
-            return (new ViewModelLocator()).Main;
+            return (ViewModelLocator.Instance).Main;
         }
 
         #endregion

@@ -35,7 +35,7 @@ namespace FocusTreeManager.Adorners
         public TutorialAdorner(FrameworkElement el, FrameworkElement parent) : base(parent)
         {
             element = el;
-            DataContext = new ViewModelLocator().Tutorial;
+            DataContext = ViewModelLocator.Instance.Tutorial;
             Children = new VisualCollection(this);
             IsHitTestVisible = true;
         }

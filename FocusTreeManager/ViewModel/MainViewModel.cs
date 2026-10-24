@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using FocusTreeManager.Model.TabModels;
 using FocusTreeManager.Helper;
 
@@ -107,6 +108,22 @@ namespace FocusTreeManager.ViewModel
             RedoCommand = new RelayCommand(RedoExecute, RedoCanExecute);
             //Messenger
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
+            //Automatic recovery copy of the project
+            if (Application.Current != null)
+            {
+                autosaveTimer = new DispatcherTimer(DispatcherPriority.Background,
+                    Application.Current.Dispatcher) { Interval = AutosaveHelper.Interval };
+                autosaveTimer.Tick += AutosaveTimer_Tick;
+                autosaveTimer.Start();
+            }
+        }
+
+        private DispatcherTimer autosaveTimer;
+
+        private void AutosaveTimer_Tick(object sender, EventArgs e)
+        {
+            if (!isProjectExist || project == null) return;
+            AutosaveHelper.Save(project);
         }
 
         async private void checkBeforeContinuing(string command)
@@ -135,6 +152,8 @@ namespace FocusTreeManager.ViewModel
                 }
                 else if (Result == MessageDialogResult.FirstAuxiliary)
                 {
+                    //The user chose to throw the changes away, so the backup is useless
+                    AutosaveHelper.Discard(Project?.Filename);
                     if (command == "New")
                     {
                         newProject();
@@ -160,7 +179,7 @@ namespace FocusTreeManager.ViewModel
 
         async private void newProject()
         {
-            var Vm = (new ViewModelLocator()).ProjectEditor;
+            var Vm = (ViewModelLocator.Instance).ProjectEditor;
             ProjectEditor dialog = new ProjectEditor();
             Vm.Project = new ProjectModel();
             dialog.ShowDialog();
@@ -177,7 +196,7 @@ namespace FocusTreeManager.ViewModel
             }
             Project = Vm.Project;
             IsProjectExist = true;
-            Messenger.Default.Send(new NotificationMessage(this, (new ViewModelLocator()).ProjectView,
+            Messenger.Default.Send(new NotificationMessage(this, (ViewModelLocator.Instance).ProjectView,
                         "RefreshProjectViewer"));
             Messenger.Default.Send(new NotificationMessage(this, "RefreshTabViewer"));
             Messenger.Default.Send(new NotificationMessage(this, "HideProjectControl"));
@@ -188,6 +207,7 @@ namespace FocusTreeManager.ViewModel
             try
             {
                 DataHolder.Instance.SaveContract(Project);
+                AutosaveHelper.Discard(Project.Filename);
             }
             catch (Exception)
             {
@@ -211,7 +231,7 @@ namespace FocusTreeManager.ViewModel
         public void editProject()
         {
             UndoService.Current[GetUndoRoot()].BeginChangeSetBatch("EditProject", false);
-            var Vm = (new ViewModelLocator()).ProjectEditor;
+            var Vm = (ViewModelLocator.Instance).ProjectEditor;
             ProjectEditor dialog = new ProjectEditor();
             Vm.Project = Project;
             dialog.ShowDialog();
@@ -265,13 +285,30 @@ namespace FocusTreeManager.ViewModel
                 string Message = LocalizationHelper.getValueForKey("Application_Legacy_Loading");
                 coordinator.ShowMessageAsync(this, Title, Message);
             }
-            if (!DataHolder.LoadContract(path))
+            //If the application did not close normally, offer the automatic backup
+            string loadFrom = path;
+            string recovery = AutosaveHelper.FindNewerRecovery(path);
+            if (recovery != null && AutosaveHelper.AskRestore(path, recovery))
+            {
+                loadFrom = recovery;
+            }
+            bool loaded = DataHolder.LoadContract(loadFrom);
+            if (!loaded && loadFrom != path)
+            {
+                //The backup is unreadable, fall back on the real file
+                loadFrom = path;
+                loaded = DataHolder.LoadContract(loadFrom);
+            }
+            if (!loaded)
             {
                 string Title = LocalizationHelper.getValueForKey("Application_Error");
                 string Message = LocalizationHelper.getValueForKey("Application_Error_Transfer");
                 coordinator.ShowMessageAsync(this, Title, Message);
                 return;
             }
+            //Whatever was loaded, the project belongs to the real file (so saving never
+            //overwrites the backup by mistake, and the backup is removed after a save)
+            DataHolder.Instance.Project.filename = path;
             project = ProjectModel.createFromDataContract(DataHolder.Instance.Project);
             AsyncImageLoader.AsyncImageLoader.Worker.RefreshFromMods();
             project.Filename = path;
@@ -279,7 +316,7 @@ namespace FocusTreeManager.ViewModel
             TabsModelList = new ObservableCollection<ObservableObject>();
             RaisePropertyChanged(() => TabsModelList);
             IsProjectExist = true;
-            Messenger.Default.Send(new NotificationMessage(this, (new ViewModelLocator()).ProjectView,
+            Messenger.Default.Send(new NotificationMessage(this, (ViewModelLocator.Instance).ProjectView,
                 "RefreshProjectViewer"));
             Messenger.Default.Send(new NotificationMessage(this, "RefreshTabViewer"));
             Messenger.Default.Send(new NotificationMessage(this, "HideProjectControl"));
@@ -294,6 +331,7 @@ namespace FocusTreeManager.ViewModel
                 try
                 {
                     DataHolder.Instance.SaveContract(Project);
+                    AutosaveHelper.Discard(Project.Filename);
                 }
                 catch (Exception)
                 {
@@ -329,9 +367,11 @@ namespace FocusTreeManager.ViewModel
                 dialog.Multiselect = false;
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
+                    AutosaveHelper.Discard(Project.Filename);
                     Project.Filename = Path.Combine(Path.GetDirectoryName(dialog.FileName),
                         Path.GetFileNameWithoutExtension(dialog.FileName)) + ".xh4prj";
                     DataHolder.Instance.SaveContract(Project);
+                    AutosaveHelper.Discard(Project.Filename);
                 }
                 Messenger.Default.Send(new NotificationMessage(this, "HideProjectControl"));
             }
@@ -418,7 +458,7 @@ namespace FocusTreeManager.ViewModel
             {
                 //Resend to the tutorial View model if this was the target
                 Messenger.Default.Send(new NotificationMessage(msg.Sender,
-                new ViewModelLocator().Tutorial, msg.Notification));
+                ViewModelLocator.Instance.Tutorial, msg.Notification));
             }
         }
 

@@ -46,14 +46,14 @@ namespace FocusTreeManager
                 case "ShowAddFocus":
                     {
                         FocusFlyout.Header = LocalizationHelper.getValueForKey("Add_Focus");
-                        new ViewModelLocator().EditFocus.SetupFlyout(msg.Sender, ModeType.Create);
+                        ViewModelLocator.Instance.EditFocus.SetupFlyout(msg.Sender, ModeType.Create);
                         FocusFlyout.IsOpen = true;
                         break;
                     }
                 case "ShowEditFocus":
                     {
                         FocusFlyout.Header = LocalizationHelper.getValueForKey("Edit_Focus");
-                        new ViewModelLocator().EditFocus.SetupFlyout(msg.Sender, ModeType.Edit);
+                        ViewModelLocator.Instance.EditFocus.SetupFlyout(msg.Sender, ModeType.Edit);
                         FocusFlyout.IsOpen = true;
                         break;
                     }
@@ -102,12 +102,13 @@ namespace FocusTreeManager
             {
                 case MessageDialogResult.Affirmative:
                     Messenger.Default.Send(new NotificationMessage(this, 
-                        new ViewModelLocator().Main, "SaveProject"));
+                        ViewModelLocator.Instance.Main, "SaveProject"));
                     //Show Save dialog and quit
                     Application.Current.Shutdown();
                     break;
                 case MessageDialogResult.FirstAuxiliary:
-                    //Quit without saving
+                    //Quit without saving, the backup is not needed anymore
+                    AutosaveHelper.Discard(Model.Project?.Filename);
                     Application.Current.Shutdown();
                     break;
             }
@@ -161,13 +162,13 @@ namespace FocusTreeManager
             ProjectFlyout.IsOpen = true;
             ProjectFlyout.CloseButtonVisibility = Visibility.Visible;
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Tutorial, "OpenedProjectFylout"));
+                ViewModelLocator.Instance.Tutorial, "OpenedProjectFylout"));
         }
 
         private void ProjectFlyout_OnClosingFinished(object sender, RoutedEventArgs e)
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Tutorial, "ClosedProjectFylout"));
+                ViewModelLocator.Instance.Tutorial, "ClosedProjectFylout"));
         }
 
         //Drag with the mouse effect
@@ -270,7 +271,7 @@ namespace FocusTreeManager
                 SettingsButton_Click(this, new RoutedEventArgs());
             }
             //Check Tutorial
-            new ViewModelLocator().Tutorial.StartCommand.RaiseCanExecuteChanged();
+            ViewModelLocator.Instance.Tutorial.StartCommand.RaiseCanExecuteChanged();
         }
 
         private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)

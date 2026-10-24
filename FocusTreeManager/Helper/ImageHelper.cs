@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -54,27 +55,51 @@ namespace FocusTreeManager.Helper
 
         private static readonly string[] IMAGE_DO_NOT_LOAD = { "shine_mask", "shine_overlay"};
 
+        private static ImageSource errorImage;
+
+        /// <summary>
+        /// The "unknown" image used when a goal/event picture cannot be found.
+        /// It used to be re-read from the disk on EVERY call, even when the requested image
+        /// existed. It is now loaded once, fully decoded and frozen.
+        /// </summary>
+        private static ImageSource GetErrorImage()
+        {
+            ImageSource cached = errorImage;
+            if (cached != null) return cached;
+            //If we couldn't find the error image, throw an IO exception
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(Directory.GetCurrentDirectory() + GFX_ERROR_IMAGE);
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.EndInit();
+            image.Freeze();
+            errorImage = image;
+            return image;
+        }
+
         public static ImageSource getImageFromGame(string imageName, ImageType source)
         {
-            //If we couldn't find the error image, throw an IO exception
-            ImageSource errorSource = new BitmapImage(new Uri(Directory.GetCurrentDirectory() 
-                + GFX_ERROR_IMAGE));
+            ImageSource errorSource = GetErrorImage();
             //Try to obtain the image
             try
             {
-                ImageSource value;
+                Dictionary<string, ImageSource> images;
                 switch (source)
                 {
                     case ImageType.Goal:
-                        value =  AsyncImageLoader.AsyncImageLoader.Worker.
-                            Focuses.LastOrDefault(f => f.Key == imageName).Value;
+                        images = AsyncImageLoader.AsyncImageLoader.Worker.Focuses;
                         break;
                     case ImageType.Event:
-                        value =  AsyncImageLoader.AsyncImageLoader.Worker.
-                            Events.LastOrDefault(f => f.Key == imageName).Value;
+                        images = AsyncImageLoader.AsyncImageLoader.Worker.Events;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(source), source, null);
+                }
+                //Direct dictionary lookup instead of a linear LastOrDefault scan
+                ImageSource value = null;
+                if (images != null && imageName != null)
+                {
+                    images.TryGetValue(imageName, out value);
                 }
                 //Make sure the value is set, if not, return the error image.
                 return value ?? errorSource;
@@ -86,102 +111,96 @@ namespace FocusTreeManager.Helper
             }
         }
 
-        public static Dictionary<string, ImageSource> findAllGameImages(ImageType source)
+        private static string GetFolderFor(ImageType source)
         {
-            Dictionary<string, ImageSource> list = new Dictionary<string, ImageSource>();
-            string rightFolder;
             switch (source)
             {
                 case ImageType.Goal:
-                    rightFolder = GFX_GOAL_FOLDER;
-                    break;
+                    return GFX_GOAL_FOLDER;
                 case ImageType.Event:
-                    rightFolder = GFX_EVENT_FOLDER;
-                    break;
+                    return GFX_EVENT_FOLDER;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(source), source, null);
             }
-            string fullpath = Configurator.getGamePath() + rightFolder;
-            if (!Directory.Exists(fullpath)) return list;
-            //For each file in the normal folder
-            foreach (string filename in Directory.GetFiles(fullpath, "*" + GFX_EXTENTION, 
-                                                           SearchOption.TopDirectoryOnly))
-            {
-                if (IMAGE_DO_NOT_LOAD.Any(filename.Contains))
-                {
-                    continue;
-                }
-                try
-                {
-                    string imageName = Path.GetFileNameWithoutExtension(filename);
-                    //try to replace potential broken links because of typos in the file names.
-                    imageName = Array.IndexOf(ARRAY_ASSOCIATED_TYPO, imageName) != -1
-                        ? ARRAY_FILE_NAME[Array.IndexOf(ARRAY_ASSOCIATED_TYPO, imageName)]
-                        : imageName;
-                    ImageSource result = ImageSourceForBitmap(DDS.LoadImage(filename));
-                    result.Freeze();
-                    list[imageName] = result;
-                }
-                catch (Exception)
-                {
-                    // ignored, we don't want to kill the whole process for one missing image
-                }
-            }
+        }
+
+        public static Dictionary<string, ImageSource> findAllGameImages(ImageType source)
+        {
+            Dictionary<string, ImageSource> list = new Dictionary<string, ImageSource>();
+            string rightFolder = GetFolderFor(source);
+            LoadImagesFromFolder(Configurator.getGamePath() + rightFolder, list);
             return list;
         }
 
         public static Dictionary<string, ImageSource> RefreshFromMods(ImageType source)
         {
             Dictionary<string, ImageSource> list = new Dictionary<string, ImageSource>();
-            string rightFolder;
-            switch (source)
-            {
-                case ImageType.Goal:
-                    rightFolder = GFX_GOAL_FOLDER;
-                    break;
-                case ImageType.Event:
-                    rightFolder = GFX_EVENT_FOLDER;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(source), source, null);
-            }
+            string rightFolder = GetFolderFor(source);
             //For each file in add mod folders
-            ProjectModel model = new ViewModelLocator().Main.Project;
+            ProjectModel model = ViewModelLocator.Instance.Main.Project;
             if (model?.ListModFolders == null) return list;
+            foreach (string modpath in model.ListModFolders)
             {
-                foreach (string modpath in model.ListModFolders)
-                {
-                    string fullpath = modpath + rightFolder;
-                    if (!Directory.Exists(fullpath))
-                    {
-                        continue;
-                    }
-                    foreach (string filename in Directory.GetFiles(fullpath, "*" + GFX_EXTENTION,
-                        SearchOption.TopDirectoryOnly))
-                    {
-                        if (IMAGE_DO_NOT_LOAD.Any(filename.Contains))
-                        {
-                            continue;
-                        }
-                        try
-                        {
-                            string imageName = Path.GetFileNameWithoutExtension(filename);
-                            //try to replace potential broken links because of typos in the file names.
-                            imageName = Array.IndexOf(ARRAY_ASSOCIATED_TYPO, imageName) != -1
-                                ? ARRAY_FILE_NAME[Array.IndexOf(ARRAY_ASSOCIATED_TYPO, imageName)]
-                                : imageName;
-                            ImageSource result = ImageSourceForBitmap(DDS.LoadImage(filename));
-                            result.Freeze();
-                            list[imageName] = result;
-                        }
-                        catch (Exception)
-                        {
-                            // ignored, we don't want to kill the whole process for one missing image
-                        }
-                    }
-                }
+                LoadImagesFromFolder(modpath + rightFolder, list);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Loads every .dds of a folder into the list (shared by the game and mod loaders,
+        /// which used to be two copies of the same code).
+        /// </summary>
+        private static void LoadImagesFromFolder(string fullpath, 
+                                                 Dictionary<string, ImageSource> list)
+        {
+            if (!Directory.Exists(fullpath)) return;
+            string[] files = Directory.GetFiles(fullpath, "*" + GFX_EXTENTION,
+                                                SearchOption.TopDirectoryOnly)
+                .Where(f => !IMAGE_DO_NOT_LOAD.Any(f.Contains)).ToArray();
+            string[] names = new string[files.Length];
+            ImageSource[] decoded = new ImageSource[files.Length];
+            //Decoding a .dds is CPU bound and every file is independent, so decode them in
+            //parallel (this is what made the start-up image loading slow). Frozen images
+            //can be shared between threads.
+            ParallelOptions options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount)
+            };
+            Parallel.For(0, files.Length, options, i =>
+            {
+                try
+                {
+                    string imageName = Path.GetFileNameWithoutExtension(files[i]);
+                    //try to replace potential broken links because of typos in the file names.
+                    int typoIndex = Array.IndexOf(ARRAY_ASSOCIATED_TYPO, imageName);
+                    if (typoIndex != -1)
+                    {
+                        imageName = ARRAY_FILE_NAME[typoIndex];
+                    }
+                    ImageSource result;
+                    //Dispose the GDI+ bitmap as soon as it is converted, it used to leak
+                    using (Bitmap bitmap = DDS.LoadImage(files[i]))
+                    {
+                        result = ImageSourceForBitmap(bitmap);
+                    }
+                    result.Freeze();
+                    names[i] = imageName;
+                    decoded[i] = result;
+                }
+                catch (Exception)
+                {
+                    // ignored, we don't want to kill the whole process for one missing image
+                }
+            });
+            //Merge in the original file order so that the result is the same as before
+            //(a later file with the same name still wins).
+            for (int i = 0; i < files.Length; i++)
+            {
+                if (decoded[i] != null)
+                {
+                    list[names[i]] = decoded[i];
+                }
+            }
         }
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]

@@ -34,6 +34,8 @@
                                         RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"/>
                         <MenuItem x:Name="MenuShowRelative" Header="{DynamicResource Show_Relative_Pos}"
                                     Command="{Binding ShowHidePositionLinesCommand}" />
+                        <MenuItem x:Name="MenuValidate" Header="Check tree for problems"
+                                    Command="{Binding ValidateCommand}" />
                         <MenuItem x:Name="MenuPaste" Header="{DynamicResource Command_Paste}" 
                                   Command="{Binding PasteCommand}"
                                   CommandParameter="{Binding PlacementTarget.Tag, RelativeSource={

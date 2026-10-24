@@ -55,7 +55,7 @@ namespace FocusTreeManager.ViewModel
 
         public List<ControlInfo> CommonControls => getCommonControls();
 
-        public ScripterType CurrentType => new ViewModelLocator().Scripter.ScriptType;
+        public ScripterType CurrentType => ViewModelLocator.Instance.Scripter.ScriptType;
 
         /// <summary>
         /// Initializes a new instance of the ScripterControlsViewModel class.

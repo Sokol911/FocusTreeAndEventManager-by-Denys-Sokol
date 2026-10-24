@@ -24,7 +24,7 @@ namespace FocusTreeManager.Model
                     Id = "eventid.d_descriptioname";
                 }
 
-                LocalisationModel locales = (new ViewModelLocator()).Main.Project.DefaultLocale;
+                LocalisationModel locales = (ViewModelLocator.Instance).Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(Id);
                 return translation ?? Id;
             }
@@ -53,7 +53,7 @@ namespace FocusTreeManager.Model
 
         public void EditDescScript()
         {
-            ScripterViewModel ViewModel = new ViewModelLocator().Scripter;
+            ScripterViewModel ViewModel = ViewModelLocator.Instance.Scripter;
             ViewModel.ScriptType = ScripterType.EventDescription;
             ViewModel.ManagedScript = internalScript;
             EditScript dialog = new EditScript();
@@ -69,7 +69,7 @@ namespace FocusTreeManager.Model
         //fork add ReloadDescScript method
         public void ReloadDescScript()
         {
-            ScripterViewModel ViewModel = new ViewModelLocator().Scripter;
+            ScripterViewModel ViewModel = ViewModelLocator.Instance.Scripter;
             ViewModel.ScriptType = ScripterType.EventDescription;
             ViewModel.ManagedScript = internalScript;
             EditScript dialog = new EditScript();

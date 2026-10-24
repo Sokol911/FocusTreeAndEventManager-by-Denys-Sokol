@@ -47,7 +47,7 @@ namespace FocusTreeManager.Model
             get
             {
                 
-                LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(Id + ".t");
                 return translation ?? Id + ".t";
             }
@@ -57,7 +57,7 @@ namespace FocusTreeManager.Model
         {
             get
             {
-                LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(Id + ".d");
                 return translation ?? Id + ".d";
             }
@@ -374,7 +374,7 @@ namespace FocusTreeManager.Model
 
         public void EditScript()
         {
-            ScripterViewModel ViewModel = new ViewModelLocator().Scripter;
+            ScripterViewModel ViewModel = ViewModelLocator.Instance.Scripter;
             ViewModel.ScriptType = ScripterType.Event;
             ViewModel.ManagedScript = internalScript;
             EditScript dialog = new EditScript();
@@ -403,15 +403,15 @@ namespace FocusTreeManager.Model
         public void DeleteElement()
         {
             Messenger.Default.Send(new NotificationMessage(this, 
-                new ViewModelLocator().Main.SelectedTab, "DeleteEvent"));
+                ViewModelLocator.Instance.Main.SelectedTab, "DeleteEvent"));
         }
 
         public void ChangeImage()
         {
             ChangeImage view = new ChangeImage();
-            new ViewModelLocator().ChangeImage.LoadImages("Events", Picture);
+            ViewModelLocator.Instance.ChangeImage.LoadImages("Events", Picture);
             view.ShowDialog();
-            Picture = new ViewModelLocator().ChangeImage.FocusImage;
+            Picture = ViewModelLocator.Instance.ChangeImage.FocusImage;
         }
 
         public void EditLocale(string param)
@@ -423,8 +423,8 @@ namespace FocusTreeManager.Model
             switch (param)
             {
                 case "Title":
-                    LocalizatorViewModel vm = new ViewModelLocator().Localizator;
-                    LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                    LocalizatorViewModel vm = ViewModelLocator.Instance.Localizator;
+                    LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                     LocaleModel model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == Id + ".t");
                     if (model != null)
@@ -443,8 +443,8 @@ namespace FocusTreeManager.Model
                     vm.RaisePropertyChanged(() => vm.Locale);
                     break;
                 case "Description":
-                    vm = new ViewModelLocator().Localizator;
-                    locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                    vm = ViewModelLocator.Instance.Localizator;
+                    locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                     model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == Id + ".d");
                     if (model != null)
@@ -468,14 +468,14 @@ namespace FocusTreeManager.Model
 
         public bool CanEditLocale(string param)
         {
-            LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+            LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
             return locales != null;
         }
 
         public void AddOrUpdateLocale()
         {
-            LocalizatorViewModel vm = new ViewModelLocator().Localizator;
-            LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+            LocalizatorViewModel vm = ViewModelLocator.Instance.Localizator;
+            LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
             LocaleModel model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == vm.Locale.Key);
             if (model == null)
@@ -521,7 +521,7 @@ namespace FocusTreeManager.Model
 
         public object GetUndoRoot()
         {
-            return new ViewModelLocator().Main;
+            return ViewModelLocator.Instance.Main;
         }
 
         #endregion

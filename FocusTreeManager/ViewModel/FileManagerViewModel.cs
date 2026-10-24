@@ -98,7 +98,7 @@ namespace FocusTreeManager.ViewModel
                             string Title = LocalizationHelper.getValueForKey("Application_Error");
                             string Message = LocalizationHelper.getValueForKey("Application_Error_Script");
                             coordinator.ShowMessageAsync(this, Title, Message);
-                            new ViewModelLocator().ErrorDawg.AddError(script.Logger.ErrorsToString());
+                            ViewModelLocator.Instance.ErrorDawg.AddError(script.Logger.ErrorsToString());
                             //If it crashed, it is possible it was a generic file
                             File = Parsers.ScriptParser.CreateScriptFromFile(dialog.FileName);
                             return;
@@ -106,7 +106,7 @@ namespace FocusTreeManager.ViewModel
                         if (script.Logger.hasErrorsAndSafeErrors())
                         {
                             //If any safe errors, continue, but show error dawg
-                            new ViewModelLocator().ErrorDawg.AddError(script.Logger.ErrorsToString());
+                            ViewModelLocator.Instance.ErrorDawg.AddError(script.Logger.ErrorsToString());
                         }
                         try
                         {
@@ -177,22 +177,22 @@ namespace FocusTreeManager.ViewModel
                 case "FocusTreeItem":
                     File = new FocusGridModel("New file");
                     Messenger.Default.Send(new NotificationMessage(this, 
-                        new ViewModelLocator().Tutorial, "NewFocusTreeFile"));
+                        ViewModelLocator.Instance.Tutorial, "NewFocusTreeFile"));
                     break;
                 case "LocalisationItem":
                     File = new LocalisationModel("New file");
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Tutorial, "NewLocalizationFile"));
+                        ViewModelLocator.Instance.Tutorial, "NewLocalizationFile"));
                     break;
                 case "EventItem":
                     File = new EventTabModel("New file");
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Tutorial, "NewEventFile"));
+                        ViewModelLocator.Instance.Tutorial, "NewEventFile"));
                     break;
                 case "GenericItem":
                     File = new ScriptModel("New file");
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Tutorial, "NewScriptFile"));
+                        ViewModelLocator.Instance.Tutorial, "NewScriptFile"));
                     break;
             }
         }

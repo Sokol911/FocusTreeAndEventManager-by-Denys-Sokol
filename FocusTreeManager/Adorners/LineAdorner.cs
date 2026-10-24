@@ -48,56 +48,87 @@ namespace FocusTreeManager.Adorners
             return Children;
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
+        //Loading Icons.xaml (more than 5000 lines of XAML) for every single render, which
+        //happens on every mouse move over a line, was the most expensive thing in here.
+        private static VisualBrush scissorBrush;
+
+        private static VisualBrush GetScissorBrush()
         {
-            Child.Children.Clear();
-            FocusGridModel context = DataContext as FocusGridModel;
-            base.OnRender(drawingContext);
-            if (context == null) return;
-            foreach (CanvasLine line in context.CanvasLines)
-            {
-                Line newLine = new Line
-                {
-                    X1 = line.X1,
-                    X2 = line.X2,
-                    Y1 = line.Y1,
-                    Y2 = line.Y2,
-                    Visibility = Visibility.Visible,
-                    StrokeThickness = 2,
-                    Stroke = line.Color
-                };
-                if (line.Dashes)
-                {
-                    newLine.StrokeDashArray = new DoubleCollection(new double[] { 2, 2});
-                }
-                Child.Children.Add(newLine);
-            }
-            if (context.selectedLine == null) return;
+            if (scissorBrush != null) return scissorBrush;
             ResourceDictionary resourceLocalization = new ResourceDictionary
             {
                 Source = new Uri("/FocusTreeManager;component/Resources/Icons.xaml", UriKind.Relative)
             };
+            scissorBrush = new VisualBrush
+            {
+                Visual = (Visual) resourceLocalization["appbar_scissor"]
+            };
+            return scissorBrush;
+        }
+
+        //What the line shapes were last built from
+        private object renderedLines;
+
+        private int renderedVersion = -1;
+
+        private Rectangle scissors;
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+            FocusGridModel context = DataContext as FocusGridModel;
+            if (context == null)
+            {
+                Child.Children.Clear();
+                scissors = null;
+                renderedLines = null;
+                return;
+            }
+            //The line shapes are only rebuilt if the model really redrew its lines. A render
+            //caused by hovering only has to move the scissors.
+            if (!ReferenceEquals(renderedLines, context.CanvasLines) ||
+                renderedVersion != context.LinesVersion)
+            {
+                Child.Children.Clear();
+                scissors = null;
+                foreach (CanvasLine line in context.CanvasLines)
+                {
+                    Line newLine = new Line
+                    {
+                        X1 = line.X1,
+                        X2 = line.X2,
+                        Y1 = line.Y1,
+                        Y2 = line.Y2,
+                        Visibility = Visibility.Visible,
+                        StrokeThickness = 2,
+                        Stroke = line.Color
+                    };
+                    if (line.Dashes)
+                    {
+                        newLine.StrokeDashArray = new DoubleCollection(new double[] { 2, 2});
+                    }
+                    Child.Children.Add(newLine);
+                }
+                renderedLines = context.CanvasLines;
+                renderedVersion = context.LinesVersion;
+            }
+            //Remove the previous scissors, they are added again if a line is selected
+            if (scissors != null)
+            {
+                Child.Children.Remove(scissors);
+                scissors = null;
+            }
+            if (context.selectedLine == null) return;
             Rectangle visualBoard = new Rectangle
             {
                 Width = 25,
                 Height = 25
             };
-            //Canvas.SetLeft(visualBoard, Math.Min(context.selectedLine.X1,
-            //                                context.selectedLine.X2) + 
-            //                                Math.Abs(context.selectedLine.X2 - 
-            //                                         context.selectedLine.X1) / 2 - 12.5);
-            //Canvas.SetTop(visualBoard, Math.Min(context.selectedLine.Y1,
-            //                               context.selectedLine.Y2) + 
-            //                               Math.Abs(context.selectedLine.Y2 -
-            //                                        context.selectedLine.Y1) / 2 - 12.5);
             Point Position = Mouse.GetPosition(this);
             Canvas.SetTop(visualBoard, Position.Y);
             Canvas.SetLeft(visualBoard, Position.X);
-            VisualBrush vBrush = new VisualBrush
-            {
-                Visual = (Visual) resourceLocalization["appbar_scissor"]
-            };
-            visualBoard.Fill = vBrush;
+            visualBoard.Fill = GetScissorBrush();
+            scissors = visualBoard;
             Child.Children.Add(visualBoard);
         }
 

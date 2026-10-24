@@ -23,18 +23,34 @@ namespace FocusTreeManager.Views.UserControls
     {
         private Point OldPoint;
 
-        private readonly DispatcherTimer dispatcherTimer;
-
         public Focus()
         {
             InitializeComponent();
             loadLocales();
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
-            //Timer
-            dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Tick += dispatcherTimer_Tick;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
-            dispatcherTimer.Start();
+            //Position tracking. Every focus used to own a DispatcherTimer polling its position
+            //20 times per second, forever. A position can only change after a layout pass
+            //(or while dragging, where FocusGrid calls DetectPositionPoints itself), so the
+            //position is now only checked when the layout was updated.
+            Loaded += Focus_TrackLayout;
+            Unloaded += Focus_StopTrackingLayout;
+        }
+
+        private void Focus_TrackLayout(object sender, RoutedEventArgs e)
+        {
+            LayoutUpdated -= Focus_LayoutUpdated;
+            LayoutUpdated += Focus_LayoutUpdated;
+            DetectPositionPoints();
+        }
+
+        private void Focus_StopTrackingLayout(object sender, RoutedEventArgs e)
+        {
+            LayoutUpdated -= Focus_LayoutUpdated;
+        }
+
+        private void Focus_LayoutUpdated(object sender, EventArgs e)
+        {
+            DetectPositionPoints();
         }
 
         private void StartImageDispatcher()
@@ -65,11 +81,6 @@ namespace FocusTreeManager.Views.UserControls
             Resources.MergedDictionaries.Add(LocalizationHelper.getLocale());
         }
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            DetectPositionPoints();
-        }
-
         public void DetectPositionPoints()
         {
             DependencyObject parent = VisualTreeHelper.GetParent(this);
@@ -77,7 +88,6 @@ namespace FocusTreeManager.Views.UserControls
             {
                 if (parent == null)
                 {
-                    dispatcherTimer.Stop();
                     return;
                 }
                 parent = VisualTreeHelper.GetParent(parent);
@@ -140,7 +150,7 @@ namespace FocusTreeManager.Views.UserControls
             //Image loading async
             StartImageDispatcher();
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Tutorial, "FocusLoaded"));
+                ViewModelLocator.Instance.Tutorial, "FocusLoaded"));
         }
 
         private void Focus_OnMouseEnter(object sender, MouseEventArgs e)

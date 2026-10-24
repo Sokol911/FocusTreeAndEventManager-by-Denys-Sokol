@@ -1,4 +1,4 @@
-/*
+﻿/*
   In App.xaml:
   <Application.Resources>
       <vm:ViewModelLocator xmlns:vm="clr-namespace:FocusTreeManager"
@@ -30,24 +30,56 @@ namespace FocusTreeManager.ViewModel
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
+        private static readonly object InitLock = new object();
+
+        private static ViewModelLocator instance;
+
+        /// <summary>
+        /// Shared locator. Use this instead of "new ViewModelLocator()".
+        /// </summary>
+        public static ViewModelLocator Instance
+        {
+            get
+            {
+                if (instance != null) return instance;
+                lock (InitLock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new ViewModelLocator();
+                    }
+                    return instance;
+                }
+            }
+        }
+
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-            SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<ProjectViewViewModel>();
-            SimpleIoc.Default.Register<ManageFocusViewModel>();
-            SimpleIoc.Default.Register<ChangeImageViewModel>();
-            SimpleIoc.Default.Register<SettingsViewModel>();
-            SimpleIoc.Default.Register<FileManagerViewModel>();
-            SimpleIoc.Default.Register<ProjectEditorViewModel>();
-            SimpleIoc.Default.Register<LocalizatorViewModel>();
-            SimpleIoc.Default.Register<ScripterViewModel>();
-            SimpleIoc.Default.Register<ScripterControlsViewModel>();
-            SimpleIoc.Default.Register<CodeComparatorViewModel>();
-            SimpleIoc.Default.Register<ErrorDawgViewModel>();
-            SimpleIoc.Default.Register<StatusBarViewModel>();
-            SimpleIoc.Default.Register<TutorialViewModel>();
-            Messenger.Default.Register<NotificationMessage>(this, NotifyUserMethod);
+            //This class is instantiated extremely often (almost every model property
+            //getter/setter does "new ViewModelLocator()"). Re-registering every view model
+            //and adding one more Messenger recipient on each instantiation was slow and made
+            //every Messenger.Send slower and slower, so the setup is only done once.
+            if (SimpleIoc.Default.IsRegistered<MainViewModel>()) return;
+            lock (InitLock)
+            {
+                if (SimpleIoc.Default.IsRegistered<MainViewModel>()) return;
+                ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
+                SimpleIoc.Default.Register<MainViewModel>();
+                SimpleIoc.Default.Register<ProjectViewViewModel>();
+                SimpleIoc.Default.Register<ManageFocusViewModel>();
+                SimpleIoc.Default.Register<ChangeImageViewModel>();
+                SimpleIoc.Default.Register<SettingsViewModel>();
+                SimpleIoc.Default.Register<FileManagerViewModel>();
+                SimpleIoc.Default.Register<ProjectEditorViewModel>();
+                SimpleIoc.Default.Register<LocalizatorViewModel>();
+                SimpleIoc.Default.Register<ScripterViewModel>();
+                SimpleIoc.Default.Register<ScripterControlsViewModel>();
+                SimpleIoc.Default.Register<CodeComparatorViewModel>();
+                SimpleIoc.Default.Register<ErrorDawgViewModel>();
+                SimpleIoc.Default.Register<StatusBarViewModel>();
+                SimpleIoc.Default.Register<TutorialViewModel>();
+                Messenger.Default.Register<NotificationMessage>(this, NotifyUserMethod);
+            }
         }
 
         private void NotifyUserMethod(NotificationMessage obj)

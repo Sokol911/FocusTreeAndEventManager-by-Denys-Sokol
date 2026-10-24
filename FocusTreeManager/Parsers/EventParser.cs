@@ -172,7 +172,7 @@ namespace FocusTreeManager.Parsers
                     newEvent.InternalScript = InternalEventScript;
                     if (script.Logger.hasErrors())
                     {
-                        new ViewModelLocator().ErrorDawg.AddError(
+                        ViewModelLocator.Instance.ErrorDawg.AddError(
                             string.Join("\n", script.Logger.getErrors()));
                         continue;
                     }
@@ -181,8 +181,8 @@ namespace FocusTreeManager.Parsers
                 catch (Exception)
                 {
                     //TODO: Add language support
-                    new ViewModelLocator().ErrorDawg.AddError(script.Logger.ErrorsToString());
-                    new ViewModelLocator().ErrorDawg.AddError("Invalid syntax for event "
+                    ViewModelLocator.Instance.ErrorDawg.AddError(script.Logger.ErrorsToString());
+                    ViewModelLocator.Instance.ErrorDawg.AddError("Invalid syntax for event "
                         + block.FindValue("id").Parse() + ", please double-check the syntax.");
                 }
             }

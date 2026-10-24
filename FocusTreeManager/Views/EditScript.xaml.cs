@@ -16,7 +16,7 @@ namespace FocusTreeManager.Views
         {
             InitializeComponent();
             loadLocales();
-            DataContext = new ViewModelLocator().Scripter;
+            DataContext = ViewModelLocator.Instance.Scripter;
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
         }
 

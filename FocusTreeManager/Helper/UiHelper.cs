@@ -19,18 +19,31 @@ namespace FocusTreeManager.Helper
             where T : DependencyObject
         {
             if (depObj == null) yield break;
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            //Same depth first (parents before their children) order as before, but with an
+            //explicit stack. The nested recursive iterators made every element returned from
+            //deep in the tree go through one iterator per level, and this is called on
+            //every mouse move while selecting.
+            Stack<DependencyObject> pending = new Stack<DependencyObject>();
+            PushChildren(pending, depObj);
+            while (pending.Count > 0)
             {
-                DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                T children = child as T;
-                if (children != null)
+                DependencyObject current = pending.Pop();
+                T match = current as T;
+                if (match != null)
                 {
-                    yield return children;
+                    yield return match;
                 }
-                foreach (T childOfChild in FindVisualChildren<T>(child))
-                {
-                    yield return childOfChild;
-                }
+                PushChildren(pending, current);
+            }
+        }
+
+        private static void PushChildren(Stack<DependencyObject> stack, DependencyObject parent)
+        {
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            //Pushed backwards so the first child is the first one popped
+            for (int i = count - 1; i >= 0; i--)
+            {
+                stack.Push(VisualTreeHelper.GetChild(parent, i));
             }
         }
 

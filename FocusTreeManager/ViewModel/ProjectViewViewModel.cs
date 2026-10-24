@@ -16,7 +16,7 @@ namespace FocusTreeManager.ViewModel
     /// </summary>
     public class ProjectViewViewModel : ViewModelBase
     {
-        public ProjectModel Project => new ViewModelLocator().Main.Project;
+        public ProjectModel Project => ViewModelLocator.Instance.Main.Project;
 
         public RelayCommand AddElementCommand { get; private set; }
 
@@ -49,19 +49,19 @@ namespace FocusTreeManager.ViewModel
         {
             FileManager dialog = new FileManager(ModeType.Create);
             dialog.ShowDialog();
-            ObservableObject File = (new ViewModelLocator()).FileManager.File;
+            ObservableObject File = (ViewModelLocator.Instance).FileManager.File;
             if (File == null) return;
             UndoService.Current[GetUndoRoot()].BeginChangeSetBatch("AddAnyFile", false);
             FocusGridModel file = File as FocusGridModel;
             if (file != null)
             {
-                ProjectModel project = new ViewModelLocator().Main.Project;
+                ProjectModel project = ViewModelLocator.Instance.Main.Project;
                 project.fociList.Add(file);
                 RaisePropertyChanged(() => project.fociList);
             }
             else if (File is LocalisationModel)
             {
-                ProjectModel project = new ViewModelLocator().Main.Project;
+                ProjectModel project = ViewModelLocator.Instance.Main.Project;
                 project.localisationList.Add((LocalisationModel)File);
                 //Check if first, if yes, set as default
                 if (project.DefaultLocale == null)
@@ -72,13 +72,13 @@ namespace FocusTreeManager.ViewModel
             }
             else if (File is EventTabModel)
             {
-                ProjectModel project = new ViewModelLocator().Main.Project;
+                ProjectModel project = ViewModelLocator.Instance.Main.Project;
                 project.eventList.Add((EventTabModel)File);
                 RaisePropertyChanged(() => project.eventList);
             }
             else if(File is ScriptModel)
             {
-                ProjectModel project = new ViewModelLocator().Main.Project;
+                ProjectModel project = ViewModelLocator.Instance.Main.Project;
                 project.scriptList.Add((ScriptModel)File);
                 RaisePropertyChanged(() => project.scriptList);
             }
@@ -87,7 +87,7 @@ namespace FocusTreeManager.ViewModel
 
         private void DeleteElement(object item)
         {
-            ProjectModel project = new ViewModelLocator().Main.Project;
+            ProjectModel project = ViewModelLocator.Instance.Main.Project;
             if (item is FocusGridModel)
             {
                 project.fociList.Remove((FocusGridModel)item);
@@ -117,14 +117,14 @@ namespace FocusTreeManager.ViewModel
             if (obj is FocusGridModel)
             {
                 FocusGridModel item = (FocusGridModel)obj;
-                new ViewModelLocator().FileManager.File = new FocusGridModel(item.VisibleName)
+                ViewModelLocator.Instance.FileManager.File = new FocusGridModel(item.VisibleName)
                 {
                     TAG = item.TAG,
                     AdditionnalMods = item.AdditionnalMods
                 };
                 dialog.ShowDialog();
-                if (new ViewModelLocator().FileManager.File == null) return;
-                FocusGridModel newItem = new ViewModelLocator().FileManager.File as FocusGridModel;
+                if (ViewModelLocator.Instance.FileManager.File == null) return;
+                FocusGridModel newItem = ViewModelLocator.Instance.FileManager.File as FocusGridModel;
                 if (newItem == null) return;
                 item.VisibleName = newItem.VisibleName;
                 item.TAG = newItem.TAG;
@@ -133,13 +133,13 @@ namespace FocusTreeManager.ViewModel
             else if (obj is LocalisationModel)
             {
                 LocalisationModel item = (LocalisationModel) obj;
-                new ViewModelLocator().FileManager.File = new LocalisationModel(item.VisibleName)
+                ViewModelLocator.Instance.FileManager.File = new LocalisationModel(item.VisibleName)
                 {
                     LanguageName = item.LanguageName
                 };
                 dialog.ShowDialog();
-                if (new ViewModelLocator().FileManager.File == null) return;
-                LocalisationModel newItem = new ViewModelLocator().FileManager.File as LocalisationModel;
+                if (ViewModelLocator.Instance.FileManager.File == null) return;
+                LocalisationModel newItem = ViewModelLocator.Instance.FileManager.File as LocalisationModel;
                 if (newItem == null) return;
                 item.VisibleName = newItem.VisibleName;
                 item.LanguageName = newItem.LanguageName;
@@ -147,13 +147,13 @@ namespace FocusTreeManager.ViewModel
             else if (obj is EventTabModel)
             {
                 EventTabModel item = (EventTabModel) obj;
-                new ViewModelLocator().FileManager.File = new EventTabModel(item.VisibleName)
+                ViewModelLocator.Instance.FileManager.File = new EventTabModel(item.VisibleName)
                 {
                     EventNamespace = item.EventNamespace
                 };
                 dialog.ShowDialog();
-                if (new ViewModelLocator().FileManager.File == null) return;
-                EventTabModel newItem = (new ViewModelLocator()).FileManager.File as EventTabModel;
+                if (ViewModelLocator.Instance.FileManager.File == null) return;
+                EventTabModel newItem = (ViewModelLocator.Instance).FileManager.File as EventTabModel;
                 if (newItem == null) return;
                 item.VisibleName = newItem.VisibleName;
                 item.EventNamespace = newItem.EventNamespace;
@@ -161,10 +161,10 @@ namespace FocusTreeManager.ViewModel
             else if (obj is ScriptModel)
             {
                 ScriptModel item = (ScriptModel) obj;
-                new ViewModelLocator().FileManager.File = new ScriptModel(item.VisibleName);
+                ViewModelLocator.Instance.FileManager.File = new ScriptModel(item.VisibleName);
                 dialog.ShowDialog();
-                if (new ViewModelLocator().FileManager.File == null) return;
-                ScriptModel newItem = new ViewModelLocator().FileManager.File as ScriptModel;
+                if (ViewModelLocator.Instance.FileManager.File == null) return;
+                ScriptModel newItem = ViewModelLocator.Instance.FileManager.File as ScriptModel;
                 if (newItem != null) item.VisibleName = newItem.VisibleName;
             }
             UndoService.Current[GetUndoRoot()].EndChangeSetBatch();
@@ -210,22 +210,22 @@ namespace FocusTreeManager.ViewModel
             if (item is FocusGridModel)
             {
                 Messenger.Default.Send(new NotificationMessage(
-                    item, new ViewModelLocator().Main, "OpenFocusTree"));
+                    item, ViewModelLocator.Instance.Main, "OpenFocusTree"));
             }
             else if (item is LocalisationModel)
             {
                 Messenger.Default.Send(new NotificationMessage(
-                    item, new ViewModelLocator().Main, "OpenLocalisation"));
+                    item, ViewModelLocator.Instance.Main, "OpenLocalisation"));
             }
             else if (item is EventTabModel)
             {
                 Messenger.Default.Send(new NotificationMessage(
-                    item, new ViewModelLocator().Main, "OpenEventList"));
+                    item, ViewModelLocator.Instance.Main, "OpenEventList"));
             }
             else if (item is ScriptModel)
             {
                 Messenger.Default.Send(new NotificationMessage(
-                    item, new ViewModelLocator().Main, "OpenScriptList"));
+                    item, ViewModelLocator.Instance.Main, "OpenScriptList"));
             }
         }
 
@@ -277,7 +277,7 @@ namespace FocusTreeManager.ViewModel
             {
                 //Resend to the tutorial View model if this was the target
                 Messenger.Default.Send(new NotificationMessage(msg.Sender,
-                new ViewModelLocator().Tutorial, msg.Notification));
+                ViewModelLocator.Instance.Tutorial, msg.Notification));
             }
         }
 
@@ -285,7 +285,7 @@ namespace FocusTreeManager.ViewModel
 
         public object GetUndoRoot()
         {
-            return new ViewModelLocator().Main;
+            return ViewModelLocator.Instance.Main;
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace FocusTreeManager.Views
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
             MaxHeight = SystemParameters.PrimaryScreenHeight * 0.90;
             MaxWidth = SystemParameters.PrimaryScreenWidth * 0.90;
-            DataContext = (new ViewModelLocator()).ChangeImage;
+            DataContext = (ViewModelLocator.Instance).ChangeImage;
         }
 
         private void NotificationMessageReceived(NotificationMessage msg)

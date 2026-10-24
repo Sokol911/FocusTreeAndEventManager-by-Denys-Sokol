@@ -60,33 +60,35 @@ namespace FocusTreeManager.Views
         {
             if (ShowCustomGridLines)
             {
+                //One pen for the whole render, a new one was created for every grid line
+                Pen pen = new Pen(GridLineBrush, GridLineThickness);
                 if (GridLinesVisibility == GridLinesVisibilityEnum.Both)
                 {
                     foreach (var rowDefinition in RowDefinitions.Skip(1))
                     {
-                        dc.DrawLine(new Pen(GridLineBrush, GridLineThickness), new Point(0, rowDefinition.Offset), new Point(ActualWidth, rowDefinition.Offset));
+                        dc.DrawLine(pen, new Point(0, rowDefinition.Offset), new Point(ActualWidth, rowDefinition.Offset));
                     }
                     foreach (var columnDefinition in ColumnDefinitions.Skip(1))
                     {
-                        dc.DrawLine(new Pen(GridLineBrush, GridLineThickness), new Point(columnDefinition.Offset, 0), new Point(columnDefinition.Offset, ActualHeight));
+                        dc.DrawLine(pen, new Point(columnDefinition.Offset, 0), new Point(columnDefinition.Offset, ActualHeight));
                     }
-                    //dc.DrawRectangle(Brushes.Transparent, new Pen(GridLineBrush, GridLineThickness), new Rect(0, 0, ActualWidth, ActualHeight));
+                    //dc.DrawRectangle(Brushes.Transparent, pen, new Rect(0, 0, ActualWidth, ActualHeight));
                 }
                 else if (GridLinesVisibility == GridLinesVisibilityEnum.Vertical)
                 {
                     foreach (var columnDefinition in ColumnDefinitions)
                     {
-                        dc.DrawLine(new Pen(GridLineBrush, GridLineThickness), new Point(columnDefinition.Offset, 0), new Point(columnDefinition.Offset, ActualHeight));
+                        dc.DrawLine(pen, new Point(columnDefinition.Offset, 0), new Point(columnDefinition.Offset, ActualHeight));
                     }
-                    dc.DrawRectangle(Brushes.Transparent, new Pen(GridLineBrush, GridLineThickness), new Rect(0, 0, ActualWidth, ActualHeight));
+                    dc.DrawRectangle(Brushes.Transparent, pen, new Rect(0, 0, ActualWidth, ActualHeight));
                 }
                 else if (GridLinesVisibility == GridLinesVisibilityEnum.Horizontal)
                 {
                     foreach (var rowDefinition in RowDefinitions)
                     {
-                        dc.DrawLine(new Pen(GridLineBrush, GridLineThickness), new Point(0, rowDefinition.Offset), new Point(ActualWidth, rowDefinition.Offset));
+                        dc.DrawLine(pen, new Point(0, rowDefinition.Offset), new Point(ActualWidth, rowDefinition.Offset));
                     }
-                    dc.DrawRectangle(Brushes.Transparent, new Pen(GridLineBrush, GridLineThickness), new Rect(0, 0, ActualWidth, ActualHeight));
+                    dc.DrawRectangle(Brushes.Transparent, pen, new Rect(0, 0, ActualWidth, ActualHeight));
                 }
 
             }

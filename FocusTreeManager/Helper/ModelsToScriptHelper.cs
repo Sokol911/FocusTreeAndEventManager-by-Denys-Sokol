@@ -137,7 +137,7 @@ namespace FocusTreeManager.Helper
         {
             part = Regex.Replace(part, @"\t|\n|\r", string.Empty);
             foreach (ScripterControlsViewModel.ControlInfo item in 
-                new ViewModelLocator().ScripterControls.CommonControls)
+                ViewModelLocator.Instance.ScripterControls.CommonControls)
             {
                 //If we can find a control with that particular name
                 if (item.control == part)
@@ -153,7 +153,7 @@ namespace FocusTreeManager.Helper
         {
             part = Regex.Replace(part, @"\t|\n|\r", string.Empty);
             foreach (ScripterControlsViewModel.ControlInfo item in
-                new ViewModelLocator().ScripterControls.CommonControls)
+                ViewModelLocator.Instance.ScripterControls.CommonControls)
             {
                 //If we can find a control with that particular name
                 if (item.control != part) continue;

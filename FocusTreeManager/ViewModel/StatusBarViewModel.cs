@@ -51,7 +51,7 @@ namespace FocusTreeManager.ViewModel
             {
                 //Resend to the tutorial View model if this was the target
                 Messenger.Default.Send(new NotificationMessage(msg.Sender,
-                new ViewModelLocator().Tutorial, msg.Notification));
+                ViewModelLocator.Instance.Tutorial, msg.Notification));
             }
         }
     }

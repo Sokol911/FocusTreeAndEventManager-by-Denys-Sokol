@@ -35,7 +35,7 @@ namespace FocusTreeManager.Model
         {
             get
             {
-                LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(Name);
                 return translation ?? Name;
             }
@@ -73,7 +73,7 @@ namespace FocusTreeManager.Model
 
         public void EditOptionScript()
         {
-            ScripterViewModel ViewModel = new ViewModelLocator().Scripter;
+            ScripterViewModel ViewModel = ViewModelLocator.Instance.Scripter;
             ViewModel.ScriptType = ScripterType.EventOption;
             ViewModel.ManagedScript = internalScript;
             EditScript dialog = new EditScript();
@@ -85,7 +85,7 @@ namespace FocusTreeManager.Model
 
         public object GetUndoRoot()
         {
-            return (new ViewModelLocator()).Main;
+            return (ViewModelLocator.Instance).Main;
         }
 
         #endregion

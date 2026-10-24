@@ -98,10 +98,13 @@ namespace FocusTreeManager.CodeStructures
             //Check if comments is not null
             if (comments != null)
             {
-                //Make a copy for the loop
-                Dictionary<int, string> localCopy = comments.ToDictionary(t => t.Key, t => t.Value);
+                //Only the comments before this line are needed. They are copied to a list
+                //(it is not possible to remove from the dictionary while looping on it)
+                //instead of copying the whole dictionary for every assignation.
+                List<KeyValuePair<int, string>> commentsBefore = 
+                    comments.TakeWhile(i => i.Key < Line).ToList();
                 //Parse all comments before going further
-                foreach (KeyValuePair<int, string> comment in localCopy.TakeWhile(i => i.Key < Line))
+                foreach (KeyValuePair<int, string> comment in commentsBefore)
                 {
                     content.Append(tabulations + comment.Value + "\n");
                     comments.Remove(comment.Key);

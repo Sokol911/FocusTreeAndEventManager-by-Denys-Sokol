@@ -67,7 +67,7 @@ namespace FocusTreeManager.Views
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
             //Check Tutorial
-            new ViewModelLocator().Tutorial.StartCommand.RaiseCanExecuteChanged();
+            ViewModelLocator.Instance.Tutorial.StartCommand.RaiseCanExecuteChanged();
         }
     }
 }

@@ -272,7 +272,7 @@ namespace FocusTreeManager.Parsers
                     newFocus.InternalScript = InternalFocusScript;
                     if (script.Logger.hasErrors())
                     {
-                        new ViewModelLocator().ErrorDawg.AddError(
+                        ViewModelLocator.Instance.ErrorDawg.AddError(
                             string.Join("\n", script.Logger.getErrors()));
                         continue;
                     }
@@ -281,8 +281,8 @@ namespace FocusTreeManager.Parsers
                 catch (Exception)
                 {
                     //TODO: Add language support
-                    new ViewModelLocator().ErrorDawg.AddError(script.Logger.ErrorsToString());
-                    new ViewModelLocator().ErrorDawg.AddError("Invalid syntax for focus "
+                    ViewModelLocator.Instance.ErrorDawg.AddError(script.Logger.ErrorsToString());
+                    ViewModelLocator.Instance.ErrorDawg.AddError("Invalid syntax for focus "
                         + script.TryParse(block, "id") + ", please double-check the syntax.");
                 }
             }

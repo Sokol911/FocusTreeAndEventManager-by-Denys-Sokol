@@ -187,7 +187,7 @@ namespace FocusTreeManager.Model
         private void ExpanderClick()
         {
             Messenger.Default.Send(new NotificationMessage(this, 
-                new ViewModelLocator().Scripter, "ExpanderClick"));
+                ViewModelLocator.Instance.Scripter, "ExpanderClick"));
         }
 
         public object Clone()

@@ -157,19 +157,19 @@ namespace FocusTreeManager.Model.TabModels
         private void SendDeleteSignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendDeleteItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendDeleteItemSignal"));
         }
 
         private void SendEditSignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendEditItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendEditItemSignal"));
         }
 
         private void SendCopySignal()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().ProjectView, "SendCopyItemSignal"));
+                ViewModelLocator.Instance.ProjectView, "SendCopyItemSignal"));
         }
 
         public async void CheckForChanges()
@@ -182,7 +182,7 @@ namespace FocusTreeManager.Model.TabModels
             //If the file was modified after the last modification date
             if (File.GetLastWriteTime(info.Filename) <= info.LastModifiedDate) return;
             //Then we can show a message
-            MessageDialogResult Result = await new ViewModelLocator()
+            MessageDialogResult Result = await ViewModelLocator.Instance
                 .Main.ShowFileChangedDialog();
             if (Result == MessageDialogResult.Affirmative)
             {
@@ -192,7 +192,7 @@ namespace FocusTreeManager.Model.TabModels
                     ParseLocalizationFileForCompare(info.Filename);
                 SideBySideDiffModel model = new SideBySideDiffBuilder(
                     new Differ()).BuildDiffModel(oldText, newText);
-                new ViewModelLocator().CodeComparator.DiffModel = model;
+                ViewModelLocator.Instance.CodeComparator.DiffModel = model;
                 new CompareCode().ShowDialog();
             }
         }
@@ -207,7 +207,7 @@ namespace FocusTreeManager.Model.TabModels
 
         public object GetUndoRoot()
         {
-            return new ViewModelLocator().Main;
+            return ViewModelLocator.Instance.Main;
         }
 
         #endregion

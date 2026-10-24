@@ -57,7 +57,7 @@ namespace FocusTreeManager.Views.UserControls
             MainWindow.KeyDown += FocusGrid_OnKeyDown;
             MainWindow.KeyUp += FocusGrid_OnKeyUp;
             //Check Tutorial
-            new ViewModelLocator().Tutorial.StartCommand.RaiseCanExecuteChanged();
+            ViewModelLocator.Instance.Tutorial.StartCommand.RaiseCanExecuteChanged();
         }
 
         public void setupInternalFoci()
@@ -135,6 +135,8 @@ namespace FocusTreeManager.Views.UserControls
             foreach (Focus focus in DraggedElement)
             {
                focus.RenderTransform = transform;
+               //A render transform does not cause a layout, tell the focus that it moved
+               focus.DetectPositionPoints();
             }
             anchorPoint = currentPoint;
         }
@@ -178,6 +180,9 @@ namespace FocusTreeManager.Views.UserControls
                     //Change the position after applying the transform
                     ((FocusGridModel)DataContext).ChangePosition(focus.DataContext, 
                         new Point(basepos.X + 45, basepos.Y));
+                    //The transform is gone, the focus might be back on the same cell and
+                    //then no layout will happen, so refresh its connection points here
+                    focus.DetectPositionPoints();
                 }
                 IsDragging = false;
                 transform.X = 0;
@@ -236,6 +241,10 @@ namespace FocusTreeManager.Views.UserControls
             if (IsDragging) return;
             // Capture and track the mouse.
             IsSelecting = true;
+            //The foci cannot change while the selection box is being dragged, so their
+            //positions are measured once here instead of on every mouse move
+            selectionCandidates = BuildSelectionCandidates();
+            highlighted.Clear();
             mouseDownPos = e.GetPosition(SelectionGrid);
             SelectionGrid.CaptureMouse();
             // Initial placement of the drag selection box.         
@@ -259,26 +268,75 @@ namespace FocusTreeManager.Views.UserControls
             selectionBox.Visibility = Visibility.Collapsed;
             Point mouseUpPos = e.GetPosition(SelectionGrid);
             Rect selectedBoundaries = new Rect(mouseDownPos, mouseUpPos);
-            IEnumerable<Focus> selectedFoci = UiHelper.FindVisualChildren<Focus>(this)
-                .Where(f =>
+            List<Focus> selectedFoci = GetFociInside(selectedBoundaries);
+            //Clear the highlight of everything that was highlighted but is not selected
+            foreach (Focus focus in highlighted)
+            {
+                if (!selectedFoci.Contains(focus))
                 {
-                    Image firstOrDefault = UiHelper.FindChildWithName(f, "FocusIcon") as Image;
-                    if (firstOrDefault == null) return false;
-                    Point pos = firstOrDefault.TranslatePoint(new Point(0, 0), this);
-                    return selectedBoundaries
-                               .Contains(new Point(pos.X + f.ActualWidth / 2,
-                                                   pos.Y + f.ActualHeight / 2));
-                });
+                    RaiseMouseEvent(focus, Mouse.MouseLeaveEvent);
+                }
+            }
+            highlighted.Clear();
+            selectionCandidates = null;
             FocusGridModel model = DataContext as FocusGridModel;
             foreach (Focus focus in selectedFoci)
             {
-                MouseEventArgs mouseLeaveEventArgs = new MouseEventArgs(Mouse.PrimaryDevice, 0)
-                {
-                    RoutedEvent = Mouse.MouseLeaveEvent
-                };
-                focus.RaiseEvent(mouseLeaveEventArgs);
+                RaiseMouseEvent(focus, Mouse.MouseLeaveEvent);
                 model?.SelectFocus(focus);
             }
+        }
+
+        private struct SelectionCandidate
+        {
+            public Focus Element;
+
+            public Point Center;
+        }
+
+        private List<SelectionCandidate> selectionCandidates;
+
+        private readonly HashSet<Focus> highlighted = new HashSet<Focus>();
+
+        private List<SelectionCandidate> BuildSelectionCandidates()
+        {
+            List<SelectionCandidate> list = new List<SelectionCandidate>();
+            foreach (Focus focus in UiHelper.FindVisualChildren<Focus>(this))
+            {
+                Image icon = UiHelper.FindChildWithName(focus, "FocusIcon") as Image;
+                if (icon == null) continue;
+                Point pos = icon.TranslatePoint(new Point(0, 0), this);
+                list.Add(new SelectionCandidate
+                {
+                    Element = focus,
+                    Center = new Point(pos.X + focus.ActualWidth / 2,
+                                       pos.Y + focus.ActualHeight / 2)
+                });
+            }
+            return list;
+        }
+
+        private List<Focus> GetFociInside(Rect selectedBoundaries)
+        {
+            List<Focus> found = new List<Focus>();
+            if (selectionCandidates == null) return found;
+            foreach (SelectionCandidate candidate in selectionCandidates)
+            {
+                if (selectedBoundaries.Contains(candidate.Center))
+                {
+                    found.Add(candidate.Element);
+                }
+            }
+            return found;
+        }
+
+        private static void RaiseMouseEvent(Focus focus, RoutedEvent routedEvent)
+        {
+            MouseEventArgs args = new MouseEventArgs(Mouse.PrimaryDevice, 0)
+            {
+                RoutedEvent = routedEvent
+            };
+            focus.RaiseEvent(args);
         }
 
         private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
@@ -307,31 +365,29 @@ namespace FocusTreeManager.Views.UserControls
                 selectionBox.Height = mouseDownPos.Y - mousePos.Y;
             }
             Rect selectedBoundaries = new Rect(mouseDownPos, mousePos);
-            foreach (Focus focus in UiHelper.FindVisualChildren<Focus>(this))
+            //Only the foci that entered or left the selection box get a mouse enter / leave,
+            //instead of sending a leave to EVERY focus and walking the whole visual tree twice
+            //on each mouse move. The final highlight is the same.
+            List<Focus> selectedFoci = GetFociInside(selectedBoundaries);
+            HashSet<Focus> nowSelected = new HashSet<Focus>(selectedFoci);
+            foreach (Focus focus in highlighted)
             {
-                MouseEventArgs mouseLeaveEventArgs = new MouseEventArgs(Mouse.PrimaryDevice, 0)
+                if (!nowSelected.Contains(focus))
                 {
-                    RoutedEvent = Mouse.MouseLeaveEvent
-                };
-                focus.RaiseEvent(mouseLeaveEventArgs);
+                    RaiseMouseEvent(focus, Mouse.MouseLeaveEvent);
+                }
             }
-            IEnumerable<Focus> selectedFoci = UiHelper.FindVisualChildren<Focus>(this)
-                .Where(f =>
-                {
-                    Image firstOrDefault = UiHelper.FindChildWithName(f, "FocusIcon") as Image;
-                    if (firstOrDefault == null) return false;
-                    Point pos = firstOrDefault.TranslatePoint(new Point(0, 0), this);
-                    return selectedBoundaries
-                               .Contains(new Point(pos.X + f.ActualWidth /2, 
-                                                   pos.Y + f.ActualHeight / 2));
-                });
             foreach (Focus focus in selectedFoci)
             {
-                MouseEventArgs mouseEnterEventArgs = new MouseEventArgs(Mouse.PrimaryDevice, 0)
+                if (!highlighted.Contains(focus))
                 {
-                    RoutedEvent = Mouse.MouseEnterEvent
-                };
-                focus.RaiseEvent(mouseEnterEventArgs);
+                    RaiseMouseEvent(focus, Mouse.MouseEnterEvent);
+                }
+            }
+            highlighted.Clear();
+            foreach (Focus focus in selectedFoci)
+            {
+                highlighted.Add(focus);
             }
         }
     }

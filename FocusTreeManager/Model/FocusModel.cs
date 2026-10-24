@@ -98,7 +98,7 @@ namespace FocusTreeManager.Model
                 {
                     source = Text;
                 }
-                var locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                var locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(source);
                 return translation ?? source;
             }
@@ -113,7 +113,7 @@ namespace FocusTreeManager.Model
                 {
                     source = Text;
                 }
-                LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                 string translation = locales?.translateKey(source + "_desc");
                 return translation ?? source + "_desc";
             }
@@ -166,7 +166,7 @@ namespace FocusTreeManager.Model
                 RaisePropertyChanged(() => X);
                 RaisePropertyChanged(() => DisplayX);
                 Messenger.Default.Send(new NotificationMessage(this,
-                    new ViewModelLocator().Main.SelectedTab, "PositionChanged"));
+                    ViewModelLocator.Instance.Main.SelectedTab, "PositionChanged"));
             }
         }
 
@@ -216,7 +216,7 @@ namespace FocusTreeManager.Model
                 RaisePropertyChanged(() => Y);
                 RaisePropertyChanged(() => DisplayY);
                 Messenger.Default.Send(new NotificationMessage(this,
-                    new ViewModelLocator().Main.SelectedTab, "PositionChanged"));
+                    ViewModelLocator.Instance.Main.SelectedTab, "PositionChanged"));
             }
         }
 
@@ -428,23 +428,31 @@ namespace FocusTreeManager.Model
 
         public void RepairSets(Focus focus, List<FocusModel> fociList)
         {
+            RepairSets(focus, new NameLookup<FocusModel>(fociList, f => f.UniqueName));
+        }
+
+        /// <summary>
+        /// Same as the list version, but with a lookup built once for the whole tree. Finding
+        /// every referenced focus with FirstOrDefault was O(n) per reference, which made
+        /// opening, copying and saving big trees quadratic.
+        /// </summary>
+        internal void RepairSets(Focus focus, NameLookup<FocusModel> lookup)
+        {
             //Relative ids
             if (focus.RelativeTo != null)
             {
-                CoordinatesRelativeTo = fociList.FirstOrDefault(f => f.UniqueName
-                                            == focus.RelativeTo.UniqueName);
+                CoordinatesRelativeTo = lookup.Find(focus.RelativeTo.UniqueName);
             }
             //Prerequisites
             foreach (PrerequisitesSet set in focus.Prerequisite)
             {
                 //Add the linked focus
                 PrerequisitesSetModel prerequiste = new PrerequisitesSetModel(
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus.UniqueName));
+                    lookup.Find(set.Focus.UniqueName));
                 //Run through all the parents and add them
                 foreach (Focus parent in set.FociList)
                 {
-                    prerequiste.FociList.Add(
-                        fociList.FirstOrDefault(f => f.UniqueName == parent.UniqueName));
+                    prerequiste.FociList.Add(lookup.Find(parent.UniqueName));
                 }
                 Prerequisite.Add(prerequiste);
             }
@@ -453,30 +461,33 @@ namespace FocusTreeManager.Model
             {
                 //Create the set with both foci
                 MutualyExclusive.Add(new MutuallyExclusiveSetModel(
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus1.UniqueName),
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus2.UniqueName)));
+                    lookup.Find(set.Focus1.UniqueName),
+                    lookup.Find(set.Focus2.UniqueName)));
             }
         }
 
         public void RepairSets(FocusModel focus, List<FocusModel> fociList)
         {
+            RepairSets(focus, new NameLookup<FocusModel>(fociList, f => f.UniqueName));
+        }
+
+        internal void RepairSets(FocusModel focus, NameLookup<FocusModel> lookup)
+        {
             //Relative ids
             if (focus.CoordinatesRelativeTo != null)
             {
-                CoordinatesRelativeTo = fociList.FirstOrDefault(f => f.UniqueName
-                                            == focus.CoordinatesRelativeTo.UniqueName);
+                CoordinatesRelativeTo = lookup.Find(focus.CoordinatesRelativeTo.UniqueName);
             }
             //Prerequisites
             foreach (PrerequisitesSetModel set in focus.Prerequisite)
             {
                 //Add the linked focus
                 PrerequisitesSetModel prerequiste = new PrerequisitesSetModel(
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus.UniqueName));
+                    lookup.Find(set.Focus.UniqueName));
                 //Run through all the parents and add them
                 foreach (FocusModel parent in set.FociList)
                 {
-                    prerequiste.FociList.Add(
-                        fociList.FirstOrDefault(f => f.UniqueName == parent.UniqueName));
+                    prerequiste.FociList.Add(lookup.Find(parent.UniqueName));
                 }
                 Prerequisite.Add(prerequiste);
             }
@@ -485,8 +496,8 @@ namespace FocusTreeManager.Model
             {
                 //Create the set with both foci
                 MutualyExclusive.Add(new MutuallyExclusiveSetModel(
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus1.UniqueName),
-                    fociList.FirstOrDefault(f => f.UniqueName == set.Focus2.UniqueName)));
+                    lookup.Find(set.Focus1.UniqueName),
+                    lookup.Find(set.Focus2.UniqueName)));
             }
         }
 
@@ -500,7 +511,7 @@ namespace FocusTreeManager.Model
 
         public void Edit()
         {
-            FocusGridModel tab = new ViewModelLocator().Main.SelectedTab as FocusGridModel;
+            FocusGridModel tab = ViewModelLocator.Instance.Main.SelectedTab as FocusGridModel;
             if (tab == null) return;
             tab.ModeType = RelationMode.Edit;
             Messenger.Default.Send(new NotificationMessage(this, "ShowEditFocus"));
@@ -519,57 +530,57 @@ namespace FocusTreeManager.Model
                 set.DeleteSetRelations();
             }
             Messenger.Default.Send(new NotificationMessage(this, 
-                new ViewModelLocator().Main.SelectedTab, "DeleteFocus"));
+                ViewModelLocator.Instance.Main.SelectedTab, "DeleteFocus"));
         }
 
         public void AddPrerequisite(string Type)
         {
-            FocusGridModel tab = new ViewModelLocator().Main.SelectedTab as FocusGridModel;
+            FocusGridModel tab = ViewModelLocator.Instance.Main.SelectedTab as FocusGridModel;
             if (tab == null) return;
             tab.ModeParam = Type == "Required" ? RelationModeParam.Required : RelationModeParam.Optional;
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Main.SelectedTab, "AddFocusPrerequisite"));
+                ViewModelLocator.Instance.Main.SelectedTab, "AddFocusPrerequisite"));
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().StatusBar, "Status_Make_Prerequisite"));
+                ViewModelLocator.Instance.StatusBar, "Status_Make_Prerequisite"));
         }
 
         public void AddMutuallyExclusive()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Main.SelectedTab, "AddFocusMutually"));
+                ViewModelLocator.Instance.Main.SelectedTab, "AddFocusMutually"));
             Messenger.Default.Send(new NotificationMessage(this, 
-                new ViewModelLocator().StatusBar, "Status_Make_Exclusive"));
+                ViewModelLocator.Instance.StatusBar, "Status_Make_Exclusive"));
         }
 
         public void MakeRelativeTo()
         {
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().Main.SelectedTab, "MakeRelativeTo"));
+                ViewModelLocator.Instance.Main.SelectedTab, "MakeRelativeTo"));
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().StatusBar, "Status_Make_Relative"));
+                ViewModelLocator.Instance.StatusBar, "Status_Make_Relative"));
         }
 
         public void FinishSetCommands()
         {
-            FocusGridModel tab = new ViewModelLocator().Main.SelectedTab as FocusGridModel;
+            FocusGridModel tab = ViewModelLocator.Instance.Main.SelectedTab as FocusGridModel;
             if (tab == null) return;
             switch (tab.ModeType)
             {
                 case RelationMode.MutuallyExclusive:
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Main.SelectedTab, "FinishAddFocusMutually"));
+                        ViewModelLocator.Instance.Main.SelectedTab, "FinishAddFocusMutually"));
                     break;
                 case RelationMode.Prerequisite:
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Main.SelectedTab, "FinishAddFocusPrerequisite"));
+                        ViewModelLocator.Instance.Main.SelectedTab, "FinishAddFocusPrerequisite"));
                     break;
                 case RelationMode.RelativeTo:
                     Messenger.Default.Send(new NotificationMessage(this,
-                        new ViewModelLocator().Main.SelectedTab, "FinishMakeRelativeTo"));
+                        ViewModelLocator.Instance.Main.SelectedTab, "FinishMakeRelativeTo"));
                     break;
             }
             Messenger.Default.Send(new NotificationMessage(this,
-                new ViewModelLocator().StatusBar, "Clear_message"));
+                ViewModelLocator.Instance.StatusBar, "Clear_message"));
         }
 
         public void EditLocale(string param)
@@ -582,8 +593,8 @@ namespace FocusTreeManager.Model
             switch (param)
             {
                 case "VisibleName":
-                    LocalizatorViewModel vm = new ViewModelLocator().Localizator;
-                    LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                    LocalizatorViewModel vm = ViewModelLocator.Instance.Localizator;
+                    LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                     LocaleModel model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == key);
                     if (model != null)
@@ -602,8 +613,8 @@ namespace FocusTreeManager.Model
                     vm.RaisePropertyChanged(() => vm.Locale);
                     break;
                 case "Description":
-                    vm = new ViewModelLocator().Localizator;
-                    locales = new ViewModelLocator().Main.Project.DefaultLocale;
+                    vm = ViewModelLocator.Instance.Localizator;
+                    locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
                     model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == key + "_desc");
                     if (model != null)
@@ -626,14 +637,14 @@ namespace FocusTreeManager.Model
 
         public bool CanEditLocale(string param)
         {
-            LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+            LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
             return locales != null;
         }
 
         public void AddOrUpdateLocale()
         {
-            LocalizatorViewModel vm = new ViewModelLocator().Localizator;
-            LocalisationModel locales = new ViewModelLocator().Main.Project.DefaultLocale;
+            LocalizatorViewModel vm = ViewModelLocator.Instance.Localizator;
+            LocalisationModel locales = ViewModelLocator.Instance.Main.Project.DefaultLocale;
             LocaleModel model = locales.LocalisationMap.FirstOrDefault(
                         l => l.Key == vm.Locale.Key);
             if (model == null)
@@ -673,9 +684,43 @@ namespace FocusTreeManager.Model
 
         public object GetUndoRoot()
         {
-            return new ViewModelLocator().Main;
+            return ViewModelLocator.Instance.Main;
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Finds the first item with a given name in O(1), with exactly the same result as
+    /// items.FirstOrDefault(i => nameOf(i) == name) (including null names and duplicates).
+    /// </summary>
+    internal sealed class NameLookup<T> where T : class
+    {
+        private readonly Dictionary<string, T> byName = new Dictionary<string, T>();
+
+        private T firstWithNullName;
+
+        public NameLookup(IEnumerable<T> items, Func<T, string> nameOf)
+        {
+            foreach (T item in items)
+            {
+                string name = nameOf(item);
+                if (name == null)
+                {
+                    if (firstWithNullName == null) firstWithNullName = item;
+                }
+                else if (!byName.ContainsKey(name))
+                {
+                    byName.Add(name, item);
+                }
+            }
+        }
+
+        public T Find(string name)
+        {
+            if (name == null) return firstWithNullName;
+            T found;
+            return byName.TryGetValue(name, out found) ? found : null;
+        }
     }
 }
