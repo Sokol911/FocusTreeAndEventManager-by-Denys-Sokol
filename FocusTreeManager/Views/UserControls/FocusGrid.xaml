@@ -36,6 +36,10 @@
                                     Command="{Binding ShowHidePositionLinesCommand}" />
                         <MenuItem x:Name="MenuValidate" Header="Check tree for problems"
                                     Command="{Binding ValidateCommand}" />
+                        <MenuItem x:Name="MenuFitZoom" Header="Zoom to fit the whole tree"
+                                    Click="MenuFitZoom_Click" />
+                        <MenuItem x:Name="MenuResetZoom" Header="Reset zoom (Ctrl+0)"
+                                    Click="MenuResetZoom_Click" />
                         <MenuItem x:Name="MenuPaste" Header="{DynamicResource Command_Paste}" 
                                   Command="{Binding PasteCommand}"
                                   CommandParameter="{Binding PlacementTarget.Tag, RelativeSource={

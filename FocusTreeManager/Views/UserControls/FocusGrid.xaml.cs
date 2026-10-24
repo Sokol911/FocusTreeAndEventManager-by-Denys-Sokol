@@ -26,9 +26,107 @@ namespace FocusTreeManager.Views.UserControls
             Mouse.OverrideCursor = Cursors.Wait;
             InitializeComponent();
             loadLocales();
+            //Zoom
+            AdornerDeco.LayoutTransform = zoomTransform;
+            PreviewMouseWheel += FocusGrid_PreviewMouseWheel;
             //Messenger
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
         }
+
+        #region Zoom
+
+        private const double ZOOM_STEP = 1.1;
+
+        private const double MIN_ZOOM = 0.1;
+
+        private const double MAX_ZOOM = 3.0;
+
+        private double zoom = 1.0;
+
+        //A layout transform scales the whole grid (foci, lines, adorners) and makes the
+        //scroll area shrink or grow with it, so zooming out shows more of the tree.
+        private readonly ScaleTransform zoomTransform = new ScaleTransform(1.0, 1.0);
+
+        private ScrollViewer FindScrollViewer()
+        {
+            DependencyObject parent = VisualTreeHelper.GetParent(this);
+            while (parent != null && !(parent is ScrollViewer))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return parent as ScrollViewer;
+        }
+
+        /// <summary>
+        /// Changes the zoom, keeping the point of the tree that is under the given point of
+        /// the scroll area (the mouse cursor, usually) at the same place on the screen.
+        /// </summary>
+        private void SetZoom(double value, Point? anchorInViewport)
+        {
+            value = Math.Max(MIN_ZOOM, Math.Min(MAX_ZOOM, value));
+            if (Math.Abs(value - zoom) < 0.0001) return;
+            ScrollViewer viewer = FindScrollViewer();
+            Point inGrid = new Point(0, 0);
+            bool keepAnchor = viewer != null && anchorInViewport.HasValue;
+            if (keepAnchor)
+            {
+                try
+                {
+                    inGrid = viewer.TranslatePoint(anchorInViewport.Value, SelectionGrid);
+                }
+                catch (InvalidOperationException)
+                {
+                    keepAnchor = false;
+                }
+            }
+            zoom = value;
+            zoomTransform.ScaleX = zoom;
+            zoomTransform.ScaleY = zoom;
+            if (!keepAnchor) return;
+            //Let the layout take the new size into account, then scroll so that the anchor
+            //did not move
+            viewer.UpdateLayout();
+            Point after = SelectionGrid.TranslatePoint(inGrid, viewer);
+            viewer.ScrollToHorizontalOffset(viewer.HorizontalOffset + after.X - anchorInViewport.Value.X);
+            viewer.ScrollToVerticalOffset(viewer.VerticalOffset + after.Y - anchorInViewport.Value.Y);
+        }
+
+        private void FocusGrid_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == 0) return;
+            ScrollViewer viewer = FindScrollViewer();
+            Point? anchor = viewer != null ? e.GetPosition(viewer) : (Point?)null;
+            SetZoom(e.Delta > 0 ? zoom * ZOOM_STEP : zoom / ZOOM_STEP, anchor);
+            e.Handled = true;
+        }
+
+        private void MenuResetZoom_Click(object sender, RoutedEventArgs e)
+        {
+            SetZoom(1.0, null);
+        }
+
+        /// <summary>
+        /// Zooms out (or in) so that the whole tree fits in the visible area.
+        /// </summary>
+        private void MenuFitZoom_Click(object sender, RoutedEventArgs e)
+        {
+            ScrollViewer viewer = FindScrollViewer();
+            if (viewer == null) return;
+            double width = SelectionGrid.ActualWidth;
+            double height = SelectionGrid.ActualHeight;
+            if (width <= 0 || height <= 0 || viewer.ViewportWidth <= 0 ||
+                viewer.ViewportHeight <= 0)
+            {
+                return;
+            }
+            //The actual size is in unscaled units, so this does not depend on the current zoom
+            double fit = Math.Min(viewer.ViewportWidth / width, viewer.ViewportHeight / height);
+            SetZoom(fit * 0.97, null);
+            viewer.ScrollToHorizontalOffset(0);
+            viewer.ScrollToVerticalOffset(0);
+        }
+
+        #endregion
 
         private void NotificationMessageReceived(NotificationMessage msg)
         {
@@ -223,6 +321,25 @@ namespace FocusTreeManager.Views.UserControls
                 FocusGridModel model = (FocusGridModel)DataContext;
                 model.PasteCommand.Execute(null);
             }
+            else if (IsVisible && (Keyboard.Modifiers & ModifierKeys.Control) != 0 &&
+                     (e.Key == Key.D0 || e.Key == Key.NumPad0))
+            {
+                //Ctrl + 0 : back to 100%
+                SetZoom(1.0, null);
+                e.Handled = true;
+            }
+            else if (IsVisible && (Keyboard.Modifiers & ModifierKeys.Control) != 0 &&
+                     (e.Key == Key.OemPlus || e.Key == Key.Add))
+            {
+                SetZoom(zoom * ZOOM_STEP, null);
+                e.Handled = true;
+            }
+            else if (IsVisible && (Keyboard.Modifiers & ModifierKeys.Control) != 0 &&
+                     (e.Key == Key.OemMinus || e.Key == Key.Subtract))
+            {
+                SetZoom(zoom / ZOOM_STEP, null);
+                e.Handled = true;
+            }
         }
 
         private bool IsSelecting;
@@ -305,7 +422,9 @@ namespace FocusTreeManager.Views.UserControls
             {
                 Image icon = UiHelper.FindChildWithName(focus, "FocusIcon") as Image;
                 if (icon == null) continue;
-                Point pos = icon.TranslatePoint(new Point(0, 0), this);
+                //Same coordinate space as the mouse position of the selection box (which is
+                //inside of the zoomed part)
+                Point pos = icon.TranslatePoint(new Point(0, 0), SelectionGrid);
                 list.Add(new SelectionCandidate
                 {
                     Element = focus,

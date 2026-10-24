@@ -548,9 +548,32 @@ namespace FocusTreeManager.ViewModel
             RedoCommand.RaiseCanExecuteChanged();
         }
 
+        /// <summary>
+        /// Some actions (moving a focus, for example) open a batch of changes that is not
+        /// always closed. The undo service refuses to undo or redo while a batch is open,
+        /// which used to crash the application on Ctrl+Z, so open batches are closed first.
+        /// </summary>
+        private static void CloseOpenBatches(UndoRoot root)
+        {
+            int guard = 0;
+            while (root.IsInBatch && guard++ < 100)
+            {
+                root.EndChangeSetBatch();
+            }
+        }
+
         private void RedoExecute()
         {
-            UndoService.Current[this].Redo();
+            UndoRoot redoRoot = UndoService.Current[this];
+            CloseOpenBatches(redoRoot);
+            try
+            {
+                redoRoot.Redo();
+            }
+            catch (InvalidOperationException)
+            {
+                //Nothing to redo
+            }
         }
 
         private bool RedoCanExecute()
@@ -560,8 +583,16 @@ namespace FocusTreeManager.ViewModel
 
         private void UndoExecute()
         {
-            var undoRoot = UndoService.Current[this];
-            undoRoot.Undo();
+            UndoRoot undoRoot = UndoService.Current[this];
+            CloseOpenBatches(undoRoot);
+            try
+            {
+                undoRoot.Undo();
+            }
+            catch (InvalidOperationException)
+            {
+                //Nothing to undo, do not crash the application for that
+            }
             //Refresh all focus grids if needed
             if (selectedTab is FocusGridModel)
             {

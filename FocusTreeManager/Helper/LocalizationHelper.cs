@@ -18,6 +18,8 @@ namespace FocusTreeManager.Helper
     {
         private static readonly string[] TypeToValueAssoc = new string[] { "", "_Tutorial"};
 
+        private const string FALLBACK_LANGUAGE = "En_en";
+
         private const string LOCALE_FILE_STRING = "/FocusTreeManager;component/Languages/";
 
         //Parsing a language file for every translated string and for every control that
@@ -38,10 +40,28 @@ namespace FocusTreeManager.Helper
             ResourceDictionary dictionary;
             if (!localeCache.TryGetValue(path, out dictionary))
             {
-                dictionary = new ResourceDictionary
+                try
                 {
-                    Source = new Uri(path, UriKind.Relative)
-                };
+                    dictionary = new ResourceDictionary
+                    {
+                        Source = new Uri(path, UriKind.Relative)
+                    };
+                }
+                catch (Exception)
+                {
+                    //This language has no file for this kind of text (the Russian language
+                    //has no tutorial texts, for example), use English instead of crashing
+                    string fallback = LOCALE_FILE_STRING + FALLBACK_LANGUAGE +
+                                      TypeToValueAssoc[(int)type] + ".xaml";
+                    if (!localeCache.TryGetValue(fallback, out dictionary))
+                    {
+                        dictionary = new ResourceDictionary
+                        {
+                            Source = new Uri(fallback, UriKind.Relative)
+                        };
+                        localeCache[fallback] = dictionary;
+                    }
+                }
                 localeCache[path] = dictionary;
             }
             return dictionary;

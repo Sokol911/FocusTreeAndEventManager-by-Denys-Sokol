@@ -69,7 +69,7 @@ namespace FocusTreeManager.Helper
             //If we couldn't find the error image, throw an IO exception
             BitmapImage image = new BitmapImage();
             image.BeginInit();
-            image.UriSource = new Uri(Directory.GetCurrentDirectory() + GFX_ERROR_IMAGE);
+            image.UriSource = new Uri(AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\') + GFX_ERROR_IMAGE);
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.EndInit();
             image.Freeze();
