@@ -203,7 +203,7 @@ namespace FocusTreeManager.Adorners
                 ((StackPanel)border.Child).Children.Add(new Button
                 {
                     Content = LocalizationHelper.getValueForKey("Tutorial_Continue", LocalesSource.Tutorial),
-                    Style = (Style)parent.FindResource("SquareButtonStyle"),
+                    Style = (Style)parent.FindResource("AppButtonStyle"),
                     Command = context.ContinueCommand,
                     Margin = new Thickness(5),
                     Width = 150,

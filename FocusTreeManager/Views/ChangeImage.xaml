@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow x:Class="FocusTreeManager.Views.ChangeImage"
+﻿<Controls:MetroWindow TitleCaps="False" x:Class="FocusTreeManager.Views.ChangeImage"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -35,7 +35,7 @@
                                 Command="{Binding ChangeImage.SelectCommand, Source={StaticResource Locator}}" 
                                 CommandParameter="{Binding Filename}" 
                                 Height="25" Width="150" VerticalAlignment="Bottom"
-                                Style="{DynamicResource SquareButtonStyle}" />
+                                Style="{DynamicResource AppButtonStyle}" />
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

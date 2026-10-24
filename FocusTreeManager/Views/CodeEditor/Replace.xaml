@@ -76,11 +76,11 @@
                 </Grid.RowDefinitions>
                 <Button Content="{DynamicResource Editor_Find_Next}" 
                     Grid.Row="0" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="NextButton"
+                    Style="{DynamicResource AppButtonStyle}" x:Name="NextButton"
                     Click="NextButton_Click"/>
                 <Button Content="{DynamicResource Editor_Replace}" 
                     Grid.Row="1" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="ReplaceButton" 
+                    Style="{DynamicResource AppButtonStyle}" x:Name="ReplaceButton" 
                     Click="ReplaceButton_Click"/>
             </Grid>
             <Grid Grid.Row="2" Grid.Column="0">
@@ -108,11 +108,11 @@
                 </Grid.RowDefinitions>
                 <Button Content="{DynamicResource Editor_Replace_All}" 
                     Grid.Row="0" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="ReplaceAllButton"
+                    Style="{DynamicResource AppButtonStyle}" x:Name="ReplaceAllButton"
                     Click="ReplaceAllButton_Click"/>
                 <Button Content="{DynamicResource Command_Cancel}" 
                     Grid.Row="1" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="CancelButton" 
+                    Style="{DynamicResource AppButtonStyle}" x:Name="CancelButton" 
                     Click="CancelButton_Click"/>
             </Grid>
         </Grid>

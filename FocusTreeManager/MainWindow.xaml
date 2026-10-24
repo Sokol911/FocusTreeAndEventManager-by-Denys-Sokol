@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow x:Class="FocusTreeManager.MainWindow"
+﻿<Controls:MetroWindow TitleCaps="False" x:Class="FocusTreeManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -85,7 +85,7 @@
                         <Button Content="{DynamicResource Command_Save}" 
                                 Command="{Binding SaveScriptCommand}"
                                 CommandParameter="{Binding ElementName=Scripter}"
-                                Width="150" Style="{DynamicResource SquareButtonStyle}" />
+                                Width="150" Style="{DynamicResource AppButtonStyle}" />
                     </StackPanel>
                 </Grid>
             </DataTemplate>

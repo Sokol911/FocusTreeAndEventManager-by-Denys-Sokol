@@ -20,6 +20,14 @@
             <Style BasedOn="{StaticResource ControlStyle}" TargetType="Label">
                 <Setter Property="Margin" Value="-4,0,5,0"/>
                 <Setter Property="HorizontalAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="ContentTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Right"/>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
             <Style BasedOn="{StaticResource ControlStyle}" TargetType="TextBox">
                 <Setter Property="Width" Value="200"/>
@@ -44,7 +52,7 @@
                          Controls:TextBoxHelper.Watermark="{Binding Key}"
                          x:Name="TextboxLocale" KeyDown="TextboxLocale_KeyDown"/>
                 <Button Content="{DynamicResource Command_OK}" Command="{Binding OkCommand}" 
-                        IsCancel="True" Margin="5,0,5,0" Style="{DynamicResource SquareButtonStyle}" 
+                        IsCancel="True" Margin="5,0,5,0" Style="{DynamicResource AppButtonStyle}" 
                         MinWidth="50" Height="30" x:Name="OkButton"
                         DataContext="{Binding RelativeSource={RelativeSource FindAncestor, 
                             AncestorType={x:Type UserControl}}, Path=DataContext}"/>

@@ -78,11 +78,11 @@
                 </Grid.RowDefinitions>
                 <Button Content="{DynamicResource Editor_Find_Next}" 
                     Grid.Row="0" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="NextButton"
+                    Style="{DynamicResource AppButtonStyle}" x:Name="NextButton"
                     Click="NextButton_Click"/>
                 <Button Content="{DynamicResource Editor_Find_Count}" 
                     Grid.Row="1" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="CountButton" 
+                    Style="{DynamicResource AppButtonStyle}" x:Name="CountButton" 
                     Click="CountButton_Click"/>
             </Grid>
             <Grid Grid.Row="2" Grid.Column="0">
@@ -109,7 +109,7 @@
                 </Grid.RowDefinitions>
                 <Button Content="{DynamicResource Command_Cancel}" 
                     Grid.Row="0" VerticalAlignment="Center" Margin="5" 
-                    Style="{DynamicResource SquareButtonStyle}" x:Name="CancelButton" 
+                    Style="{DynamicResource AppButtonStyle}" x:Name="CancelButton" 
                     Click="CancelButton_Click"/>
             </Grid>
         </Grid>

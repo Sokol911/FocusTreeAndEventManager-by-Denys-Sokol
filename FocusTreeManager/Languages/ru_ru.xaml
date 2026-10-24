@@ -41,7 +41,7 @@
     <system:String x:Key="Focus_Additional_Mods_Tooltip">Здесь можно задать дополнительные условия, ограничивающие это дерево фокусов. Например, условие has_dlc.</system:String>
     <system:String x:Key="Focus_Unique_Name">Уникальное имя</system:String>
     <system:String x:Key="Focus_Unique_Name_Tooltip">Уникальное имя фокуса, оно не должно повторяться.</system:String>
-    <system:String x:Key="Focus_Text">Идентификатор текста для локализации</system:String>
+    <system:String x:Key="Focus_Text">ID текста локализации</system:String>
     <system:String x:Key="Focus_Text_Tooltip">Поле Text можно использовать для локализации этого фокуса. Если оно задано, игра будет искать по нему ключ локализации, иначе будет использовано уникальное имя.</system:String>
     <system:String x:Key="Focus_Visible_Name">Отображаемое название</system:String>
     <system:String x:Key="Focus_Visible_Name_Tooltip">Отображаемое название задаётся в файлах локализации, ключом служит уникальное имя фокуса или поле Text, если оно задано.</system:String>

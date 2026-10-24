@@ -41,7 +41,7 @@
     <system:String x:Key="Focus_Additional_Mods_Tooltip">Aquí se pueden definir condiciones adicionales que limitan este árbol de objetivos. Por ejemplo, la condición has_dlc.</system:String>
     <system:String x:Key="Focus_Unique_Name">Nombre único</system:String>
     <system:String x:Key="Focus_Unique_Name_Tooltip">Nombre único del objetivo, no puede repetirse.</system:String>
-    <system:String x:Key="Focus_Text">Identificador de texto para la localización</system:String>
+    <system:String x:Key="Focus_Text">ID de texto (localización)</system:String>
     <system:String x:Key="Focus_Text_Tooltip">El campo Text sirve para localizar este objetivo. Si está definido, el juego buscará con él la clave de localización; si no, se usará el nombre único.</system:String>
     <system:String x:Key="Focus_Visible_Name">Nombre mostrado</system:String>
     <system:String x:Key="Focus_Visible_Name_Tooltip">El nombre mostrado se define en los archivos de localización; la clave es el nombre único del objetivo o el campo Text, si está definido.</system:String>

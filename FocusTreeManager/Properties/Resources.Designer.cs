@@ -61,7 +61,7 @@ namespace FocusTreeManager.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fr_fr;Français,En_en;English,Ru_ru;Русский,Uk_ua;Українська,Es_es;Español.
+        ///   Looks up a localized string similar to En_en;English,Es_es;Español,Fr_fr;Français,Ru_ru;Русский,Uk_ua;Українська.
         /// </summary>
         internal static string Languages {
             get {

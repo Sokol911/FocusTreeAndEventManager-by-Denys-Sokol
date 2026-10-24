@@ -15,6 +15,14 @@
                 <Style BasedOn="{StaticResource ControlStyle}" TargetType="Label">
                     <Setter Property="Margin" Value="-4,0,5,0"/>
                     <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Right"/>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
                 </Style>
             <Style BasedOn="{StaticResource ControlStyle}" TargetType="TextBox">
                 <Setter Property="Width" Value="200"/>

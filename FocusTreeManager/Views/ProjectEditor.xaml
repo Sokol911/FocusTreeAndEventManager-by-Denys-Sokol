@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow x:Class="FocusTreeManager.Views.ProjectEditor"
+﻿<Controls:MetroWindow TitleCaps="False" x:Class="FocusTreeManager.Views.ProjectEditor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -35,6 +35,14 @@
             <Style BasedOn="{StaticResource ControlStyle}" TargetType="Label">
                 <Setter Property="Margin" Value="-4,0,5,0"/>
                 <Setter Property="HorizontalAlignment" Value="Right"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="ContentTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Right"/>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
             <Style BasedOn="{StaticResource ControlStyle}" TargetType="TextBox">
                 <Setter Property="Width" Value="200"/>
@@ -92,20 +100,20 @@
                     <Button Content="{DynamicResource Command_Add}" 
                             Command="{Binding RelativeSource={RelativeSource FindAncestor, 
                                 AncestorType={x:Type Window}}, Path=DataContext.AddModFolderCommand}"
-                            Margin="5,0,5,0" Style="{DynamicResource SquareButtonStyle}" 
+                            Margin="5,0,5,0" Style="{DynamicResource AppButtonStyle}" 
                             MinWidth="100"/>
                     <Button Content="{DynamicResource Command_Remove}" 
                             Command="{Binding RelativeSource={RelativeSource FindAncestor, 
                                 AncestorType={x:Type Window}}, Path=DataContext.DeleteModFolderCommand}" 
-                            Margin="5,0,5,0" Style="{DynamicResource SquareButtonStyle}" 
+                            Margin="5,0,5,0" Style="{DynamicResource AppButtonStyle}" 
                             MinWidth="100"/>
                 </WrapPanel>
             </Grid>
             <WrapPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Button Content="{DynamicResource Command_Accept}" Command="{Binding AcceptCommand}" 
-                    IsDefault="True" Margin="5,0,5,0" Style="{DynamicResource SquareButtonStyle}" MinWidth="150"/>
+                    IsDefault="True" Margin="5,0,5,0" Style="{DynamicResource AppButtonStyle}" MinWidth="150"/>
                 <Button Content="{DynamicResource Command_Cancel}" Command="{Binding CancelCommand}" 
-                    IsCancel="True" Margin="5,0,5,0" Style="{DynamicResource SquareButtonStyle}" MinWidth="150"/>
+                    IsCancel="True" Margin="5,0,5,0" Style="{DynamicResource AppButtonStyle}" MinWidth="150"/>
             </WrapPanel>
         </Grid>
         <usrcontrl:TutorialButton LinkedElement="{Binding ElementName=ProjectMainEditor}"
