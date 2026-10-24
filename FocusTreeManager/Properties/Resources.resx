@@ -118,6 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Languages" xml:space="preserve">
-    <value>En_en;English,Es_es;Español,Fr_fr;Français,Lt_lt;Lietuvių,Kk_kz;Қазақша,Ru_ru;Русский,Uk_ua;Українська</value>
+    <value>En_en;English,Es_es;Español,Fr_fr;Français,Lt_lt;Lietuvių,Fi_fi;Suomi,Kk_kz;Қазақша,Ru_ru;Русский,Uk_ua;Українська</value>
   </data>
 </root>
