@@ -3,20 +3,18 @@
 # FocusTreeAndEventManager
 Focus tree and Event manager for Heart of Iron IV
 
-## Credits / Авторство
-**EN** — This project is a fork of [pongmadee/FocusTreeAndEventManager](https://github.com/pongmadee/FocusTreeAndEventManager), which is itself a fork of [Minivera/FocusTreeAndEventManager](https://github.com/Minivera/FocusTreeAndEventManager) (the original author). All credit for the original application belongs to them. The original license notice (`FocusTreeManager/Licence.txt`) and copyright line are kept unchanged. This fork is maintained by [Denys Sokol](https://github.com/Sokol911) and is not affiliated with or endorsed by the original authors.
+## Credits
+This project is a fork of [pongmadee/FocusTreeAndEventManager](https://github.com/pongmadee/FocusTreeAndEventManager), which is itself a fork of [Minivera/FocusTreeAndEventManager](https://github.com/Minivera/FocusTreeAndEventManager) (the original author). All credit for the original application belongs to them. The original license notice (`FocusTreeManager/Licence.txt`) and copyright line are kept unchanged. This fork is maintained by [Denys Sokol](https://github.com/Sokol911) and is not affiliated with or endorsed by the original authors.
 
-**UK** — Цей проєкт — форк [pongmadee/FocusTreeAndEventManager](https://github.com/pongmadee/FocusTreeAndEventManager), який у свою чергу є форком [Minivera/FocusTreeAndEventManager](https://github.com/Minivera/FocusTreeAndEventManager) (першоджерело). Уся заслуга за оригінальну програму належить їхнім авторам. Оригінальна ліцензія (`FocusTreeManager/Licence.txt`) і рядок про авторські права залишені без змін. Форк підтримує [Denys Sokol](https://github.com/Sokol911); він не пов'язаний з оригінальними авторами та не схвалений ними.
-
-### Changes in this fork / Зміни у цьому форку
-- Faster focus tree editor, zoom of the grid (Ctrl + wheel, Ctrl+0), "zoom to fit" / швидший редактор дерева фокусів, масштабування сітки
-- Pan the focus view by holding the left mouse button, Ctrl + drag selection box, edge auto-scroll while dragging / перетягування вигляду лівою кнопкою, рамка виділення, автопрокрутка біля краю
-- Tree validator (loops, duplicates, useless links) / перевірка дерева на помилки
-- Autosave with recovery of the project after a crash / автозбереження та відновлення проєкту після збою
-- Fixed Ctrl+Z crash, wrong working directory and missing tutorial locale / виправлено збій Ctrl+Z, робочу теку, відсутню локаль туторіалу
-- The image chooser opens instantly (virtualized list) / вікно вибору зображення відкривається миттєво
-- Languages in alphabetical order, tidier texts and button captions / мови за алфавітом, охайніші тексти й кнопки
-- Full translations (UI + tutorial): Español, Русский, Українська, Lietuvių, Suomi, Қазақша; French title marks the fork / повні переклади інтерфейсу й туторіалу
+### Changes in this fork
+- Faster focus tree editor, zoom of the grid (Ctrl + wheel, Ctrl+0), "zoom to fit"
+- Pan the focus view by holding the left mouse button, Ctrl + drag selection box, edge auto-scroll while dragging
+- Tree validator (loops, duplicates, useless links)
+- Autosave with recovery of the project after a crash
+- Fixed Ctrl+Z crash, wrong working directory and missing tutorial locale
+- The image chooser opens instantly (virtualized list)
+- Languages in alphabetical order, tidier texts and button captions
+- Full translations (UI + tutorial): Español, Русский, Українська, Lietuvių, Suomi, Қазақша; French title marks the fork
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/pongmadee/FocusTreeAndEventManager) ![GitHub top language](https://img.shields.io/github/languages/top/pongmadee/FocusTreeAndEventManager)
 #### [Download the lastest release](https://github.com/pongmadee/FocusTreeAndEventManager/releases)
