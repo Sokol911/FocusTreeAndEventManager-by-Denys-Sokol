@@ -1,3 +1,7 @@
+Modifications in this fork: Copyright (c) 2026, Denys Sokol (https://github.com/Sokol911).
+Original work: see the notice below (the original copyright notice, conditions and disclaimer are retained unchanged).
+The modifications are distributed under the same conditions as the original work.
+
 <OWNER> = Regents of the University of California
 <ORGANIZATION> = University of California, Berkeley
 <YEAR> = 1998

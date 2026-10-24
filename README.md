@@ -4,7 +4,7 @@
 Focus tree and Event manager for Heart of Iron IV
 
 ## Credits
-This project is a fork of [pongmadee/FocusTreeAndEventManager](https://github.com/pongmadee/FocusTreeAndEventManager), which is itself a fork of [Minivera/FocusTreeAndEventManager](https://github.com/Minivera/FocusTreeAndEventManager) (the original author). All credit for the original application belongs to them. The original license notice (`FocusTreeManager/Licence.txt`) and copyright line are kept unchanged. This fork is maintained by [Denys Sokol](https://github.com/Sokol911) and is not affiliated with or endorsed by the original authors.
+This project is a fork of [pongmadee/FocusTreeAndEventManager](https://github.com/pongmadee/FocusTreeAndEventManager), which is itself a fork of [Minivera/FocusTreeAndEventManager](https://github.com/Minivera/FocusTreeAndEventManager) (the original author). All credit for the original application belongs to them. The original license notice (`FocusTreeManager/Licence.txt`) and copyright are retained in full; this fork's author is added alongside them (in `Licence.txt` and the assembly copyright). This fork is maintained by [Denys Sokol](https://github.com/Sokol911) and is not affiliated with or endorsed by the original authors.
 
 ### Changes in this fork
 - Faster focus tree editor, zoom of the grid (Ctrl + wheel, Ctrl+0), "zoom to fit"
