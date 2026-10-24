@@ -33,6 +33,91 @@ namespace FocusTreeManager.Views.UserControls
             Messenger.Default.Register<NotificationMessage>(this, NotificationMessageReceived);
         }
 
+        #region Auto scroll
+
+        //While a mouse button is held to drag a focus or to select an area, moving the mouse
+        //to the edge of the view (or out of it) scrolls the view in that direction.
+        private const double EDGE_MARGIN = 50;
+
+        private const double MAX_SCROLL_STEP = 28;
+
+        private System.Windows.Threading.DispatcherTimer autoScrollTimer;
+
+        private void StartAutoScroll()
+        {
+            if (autoScrollTimer == null)
+            {
+                autoScrollTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(25)
+                };
+                autoScrollTimer.Tick += AutoScrollTimer_Tick;
+            }
+            if (!autoScrollTimer.IsEnabled)
+            {
+                autoScrollTimer.Start();
+            }
+        }
+
+        private bool IsHoldingSomething()
+        {
+            if (Mouse.LeftButton != MouseButtonState.Pressed) return false;
+            return IsSelecting || (IsDragging && Source != null && Source.IsMouseCaptured);
+        }
+
+        private static double EdgeStep(double position, double size)
+        {
+            if (size <= 0) return 0;
+            double factor = 0;
+            if (position < EDGE_MARGIN)
+            {
+                factor = -Math.Min(2.0, (EDGE_MARGIN - position) / EDGE_MARGIN);
+            }
+            else if (position > size - EDGE_MARGIN)
+            {
+                factor = Math.Min(2.0, (position - (size - EDGE_MARGIN)) / EDGE_MARGIN);
+            }
+            return factor * MAX_SCROLL_STEP;
+        }
+
+        private void AutoScrollTimer_Tick(object sender, EventArgs e)
+        {
+            if (!IsHoldingSomething())
+            {
+                autoScrollTimer.Stop();
+                return;
+            }
+            ScrollViewer viewer = FindScrollViewer();
+            if (viewer == null) return;
+            Point mouse = Mouse.GetPosition(viewer);
+            double stepX = EdgeStep(mouse.X, viewer.ViewportWidth);
+            double stepY = EdgeStep(mouse.Y, viewer.ViewportHeight);
+            if (Math.Abs(stepX) < 0.5 && Math.Abs(stepY) < 0.5) return;
+            double oldX = viewer.HorizontalOffset;
+            double oldY = viewer.VerticalOffset;
+            viewer.ScrollToHorizontalOffset(oldX + stepX);
+            viewer.ScrollToVerticalOffset(oldY + stepY);
+            viewer.UpdateLayout();
+            //Nothing moved (end of the scroll area)
+            if (Math.Abs(viewer.HorizontalOffset - oldX) < 0.1 &&
+                Math.Abs(viewer.VerticalOffset - oldY) < 0.1)
+            {
+                return;
+            }
+            //The mouse did not move but the grid did, so the selection or the dragged foci
+            //have to follow
+            if (IsSelecting)
+            {
+                UpdateSelection(Mouse.GetPosition(SelectionGrid));
+            }
+            else
+            {
+                ApplyDragTo(Mouse.GetPosition(ListGrid));
+            }
+        }
+
+        #endregion
+
         #region Zoom
 
         private const double ZOOM_STEP = 1.1;
@@ -227,7 +312,18 @@ namespace FocusTreeManager.Views.UserControls
                 Source.CaptureMouse();
             }
             if (!DraggedElement.Any() || Source == null || !Source.IsMouseCaptured) return;
-            currentPoint = e.GetPosition(ListGrid);
+            StartAutoScroll();
+            ApplyDragTo(e.GetPosition(ListGrid));
+        }
+
+        /// <summary>
+        /// Moves the dragged foci so that they follow the mouse, which is at the given point
+        /// of the grid (the grid moves under a mouse that did not move when it scrolls).
+        /// </summary>
+        private void ApplyDragTo(Point newPoint)
+        {
+            if (!DraggedElement.Any() || Source == null || !Source.IsMouseCaptured) return;
+            currentPoint = newPoint;
             transform.X += currentPoint.X - anchorPoint.X;
             transform.Y += currentPoint.Y - anchorPoint.Y;
             foreach (Focus focus in DraggedElement)
@@ -364,6 +460,7 @@ namespace FocusTreeManager.Views.UserControls
             highlighted.Clear();
             mouseDownPos = e.GetPosition(SelectionGrid);
             SelectionGrid.CaptureMouse();
+            StartAutoScroll();
             // Initial placement of the drag selection box.         
             Canvas.SetLeft(selectionBox, mouseDownPos.X);
             Canvas.SetTop(selectionBox, mouseDownPos.Y);
@@ -461,8 +558,12 @@ namespace FocusTreeManager.Views.UserControls
         private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (!IsSelecting) return;
+            UpdateSelection(e.GetPosition(SelectionGrid));
+        }
+
+        private void UpdateSelection(Point mousePos)
+        {
             // When the mouse is held down, reposition the drag selection box.
-            Point mousePos = e.GetPosition(SelectionGrid);
             if (mouseDownPos.X < mousePos.X)
             {
                 Canvas.SetLeft(selectionBox, mouseDownPos.X);
