@@ -101,14 +101,20 @@ namespace FocusTreeManager.Helper
         public static bool AskRestore(string projectPath, string recoveryPath)
         {
             StringBuilder message = new StringBuilder();
-            message.AppendLine("A more recent automatic backup exists for this project.");
-            message.AppendLine("The application probably did not close normally last time.");
+            message.AppendLine(LocalizationHelper.Tr("Restore_Line1",
+                "A more recent automatic backup exists for this project."));
+            message.AppendLine(LocalizationHelper.Tr("Restore_Line2",
+                "The application probably did not close normally last time."));
             message.AppendLine();
-            message.AppendLine("Project: " + Path.GetFileName(projectPath));
-            message.AppendLine("Backup saved at: " + File.GetLastWriteTime(recoveryPath));
+            message.AppendLine(LocalizationHelper.Tr("Restore_Project", "Project: {0}",
+                Path.GetFileName(projectPath)));
+            message.AppendLine(LocalizationHelper.Tr("Restore_Saved", "Backup saved at: {0}",
+                File.GetLastWriteTime(recoveryPath)));
             message.AppendLine();
-            message.AppendLine("Restore the backup? (Choose No to open the project file as it is.)");
-            return MessageBox.Show(message.ToString(), "Restore backup",
+            message.AppendLine(LocalizationHelper.Tr("Restore_Question",
+                "Restore the backup? (Choose No to open the project file as it is.)"));
+            return MessageBox.Show(message.ToString(),
+                LocalizationHelper.Tr("Restore_Title", "Restore backup"),
                 MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
         }
 

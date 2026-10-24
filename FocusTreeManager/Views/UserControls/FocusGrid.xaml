@@ -34,11 +34,11 @@
                                         RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"/>
                         <MenuItem x:Name="MenuShowRelative" Header="{DynamicResource Show_Relative_Pos}"
                                     Command="{Binding ShowHidePositionLinesCommand}" />
-                        <MenuItem x:Name="MenuValidate" Header="Check tree for problems"
+                        <MenuItem x:Name="MenuValidate" Header="{DynamicResource Menu_Validate}"
                                     Command="{Binding ValidateCommand}" />
-                        <MenuItem x:Name="MenuFitZoom" Header="Zoom to fit the whole tree"
+                        <MenuItem x:Name="MenuFitZoom" Header="{DynamicResource Menu_Fit_Zoom}"
                                     Click="MenuFitZoom_Click" />
-                        <MenuItem x:Name="MenuResetZoom" Header="Reset zoom (Ctrl+0)"
+                        <MenuItem x:Name="MenuResetZoom" Header="{DynamicResource Menu_Reset_Zoom}"
                                     Click="MenuResetZoom_Click" />
                         <MenuItem x:Name="MenuPaste" Header="{DynamicResource Command_Paste}" 
                                   Command="{Binding PasteCommand}"

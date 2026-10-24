@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-    <system:String x:Key="Tutorial_Continue">Нажмите здесь, чтобы продолжить</system:String>
+    <system:String x:Key="Tutorial_Continue">Продолжить</system:String>
     <system:String x:Key="Tutorial_End">На этом обучение закончено. Вы можете вернуться к нему в любой момент, снова нажав кнопку ?.</system:String>
     <system:String x:Key="Tutorial_Main_1">Добро пожаловать в обучение по главному окну. Вы можете завершить его в любой момент, снова нажав кнопку ? или клавишу Escape.</system:String>
     <system:String x:Key="Tutorial_Main_2">Панель слева — это просмотр файлов. Здесь можно добавлять, удалять и изменять файлы вашего мода. У каждого типа файлов свой интерфейс, он объясняется в отдельных обучениях.</system:String>

@@ -289,7 +289,8 @@ namespace FocusTreeManager.Model.TabModels
         {
             List<ValidationIssue> issues = FocusTreeValidator.Validate(FociList);
             DialogCoordinator.Instance.ShowMessageAsync(ViewModelLocator.Instance.Main,
-                "Tree check", FocusTreeValidator.Summarize(issues, 15));
+                LocalizationHelper.Tr("V_Title", "Tree check"),
+                FocusTreeValidator.Summarize(issues, 15));
         }
 
         internal void SetupCommons()

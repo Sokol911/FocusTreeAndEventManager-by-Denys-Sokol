@@ -72,6 +72,36 @@ namespace FocusTreeManager.Helper
             return loadLocale(type)[key] as string;
         }
 
+        /// <summary>
+        /// Text of the current language with String.Format arguments. If the language file
+        /// has no such key, the given English text is used instead.
+        /// </summary>
+        public static string Tr(string key, string fallback, params object[] args)
+        {
+            string value = null;
+            try
+            {
+                value = loadLocale(LocalesSource.Default)[key] as string;
+            }
+            catch (Exception)
+            {
+                //Use the fallback
+            }
+            if (value == null)
+            {
+                value = fallback;
+            }
+            if (args == null || args.Length == 0) return value;
+            try
+            {
+                return string.Format(value, args);
+            }
+            catch (FormatException)
+            {
+                return value;
+            }
+        }
+
         public static ResourceDictionary getLocale(LocalesSource type = LocalesSource.Default)
         {
             //Every caller still gets its own dictionary (as before), but filled by copying

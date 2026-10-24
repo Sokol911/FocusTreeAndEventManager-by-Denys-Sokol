@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-    <system:String x:Key="Tutorial_Continue">Haga clic aquí para continuar</system:String>
+    <system:String x:Key="Tutorial_Continue">Clic para continuar</system:String>
     <system:String x:Key="Tutorial_End">Con esto termina el tutorial. Puede volver a él en cualquier momento pulsando de nuevo el botón ?.</system:String>
     <system:String x:Key="Tutorial_Main_1">Bienvenido al tutorial de la ventana principal. Puede terminarlo en cualquier momento pulsando de nuevo el botón ? o la tecla Escape.</system:String>
     <system:String x:Key="Tutorial_Main_2">El panel de la izquierda es el explorador de archivos. Aquí puede añadir, eliminar y modificar los archivos de su mod. Cada tipo de archivo tiene su propia interfaz, que se explica en tutoriales aparte.</system:String>

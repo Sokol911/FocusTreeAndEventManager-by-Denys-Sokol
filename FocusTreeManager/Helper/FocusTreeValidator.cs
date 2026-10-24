@@ -51,7 +51,7 @@ namespace FocusTreeManager.Helper
 
         private static string Name(FocusModel focus)
         {
-            return string.IsNullOrWhiteSpace(focus.UniqueName) ? "(no id)" : focus.UniqueName;
+            return string.IsNullOrWhiteSpace(focus.UniqueName) ? LocalizationHelper.Tr("V_NoName", "(no id)") : focus.UniqueName;
         }
 
         private static void CheckNames(List<FocusModel> list, List<ValidationIssue> issues)
@@ -59,14 +59,16 @@ namespace FocusTreeManager.Helper
             foreach (FocusModel focus in list.Where(f => string.IsNullOrWhiteSpace(f.UniqueName)))
             {
                 issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                    "A focus at (" + focus.X + ", " + focus.Y + ") has no id."));
+                    LocalizationHelper.Tr("V_NoId", "A focus at ({0}, {1}) has no id.",
+                        focus.X, focus.Y)));
             }
             foreach (IGrouping<string, FocusModel> group in list
                 .Where(f => !string.IsNullOrWhiteSpace(f.UniqueName))
                 .GroupBy(f => f.UniqueName).Where(g => g.Count() > 1))
             {
                 issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                    "The id '" + group.Key + "' is used by " + group.Count() + " focuses."));
+                    LocalizationHelper.Tr("V_DupId", "The id '{0}' is used by {1} focuses.",
+                        group.Key, group.Count())));
             }
         }
 
@@ -81,7 +83,8 @@ namespace FocusTreeManager.Helper
                     if (set == null || set.FociList == null || set.FociList.Count == 0)
                     {
                         issues.Add(new ValidationIssue(ValidationSeverity.Warning,
-                            "'" + Name(focus) + "' has an empty prerequisite group."));
+                            LocalizationHelper.Tr("V_EmptyPrereq",
+                                "'{0}' has an empty prerequisite group.", Name(focus))));
                         continue;
                     }
                     foreach (FocusModel required in set.FociList)
@@ -89,14 +92,17 @@ namespace FocusTreeManager.Helper
                         if (required == focus)
                         {
                             issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                                "'" + Name(focus) + "' is a prerequisite of itself."));
+                                LocalizationHelper.Tr("V_SelfPrereq",
+                                    "'{0}' is a prerequisite of itself.", Name(focus))));
                         }
                         else if (required == null || !inTree.Contains(required))
                         {
                             issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                                "'" + Name(focus) + "' requires '" +
-                                (required == null ? "(nothing)" : Name(required)) +
-                                "', which is not in this tree."));
+                                LocalizationHelper.Tr("V_MissingPrereq",
+                                    "'{0}' requires '{1}', which is not in this tree.",
+                                    Name(focus), required == null
+                                        ? LocalizationHelper.Tr("V_Nothing", "(nothing)")
+                                        : Name(required))));
                         }
                     }
                 }
@@ -150,8 +156,9 @@ namespace FocusTreeManager.Helper
             foreach (FocusModel focus in list.Where(f => !unlocked.Contains(f)))
             {
                 issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                    "'" + Name(focus) + "' can never be unlocked (its prerequisites loop back " +
-                    "on it or depend on a focus that can never be unlocked)."));
+                    LocalizationHelper.Tr("V_Locked",
+                        "'{0}' can never be unlocked (its prerequisites loop back on it or " +
+                        "depend on a focus that can never be unlocked).", Name(focus))));
             }
         }
 
@@ -169,18 +176,21 @@ namespace FocusTreeManager.Helper
                     if (other == null)
                     {
                         issues.Add(new ValidationIssue(ValidationSeverity.Warning,
-                            "'" + Name(focus) + "' has an incomplete mutually exclusive link."));
+                            LocalizationHelper.Tr("V_IncompleteExcl",
+                                "'{0}' has an incomplete mutually exclusive link.", Name(focus))));
                     }
                     else if (other == focus)
                     {
                         issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                            "'" + Name(focus) + "' is mutually exclusive with itself."));
+                            LocalizationHelper.Tr("V_SelfExcl",
+                                "'{0}' is mutually exclusive with itself.", Name(focus))));
                     }
                     else if (!inTree.Contains(other))
                     {
                         issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                            "'" + Name(focus) + "' is mutually exclusive with '" + Name(other) +
-                            "', which is not in this tree."));
+                            LocalizationHelper.Tr("V_OutsideExcl",
+                                "'{0}' is mutually exclusive with '{1}', which is not in this tree.",
+                                Name(focus), Name(other))));
                     }
                     else
                     {
@@ -196,8 +206,9 @@ namespace FocusTreeManager.Helper
                     if (set.FociList.All(f => f != null && exclusive.Contains(f)))
                     {
                         issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                            "'" + Name(focus) + "' can never be taken: every focus of one of " +
-                            "its prerequisite groups is mutually exclusive with it."));
+                            LocalizationHelper.Tr("V_ImpossibleExcl",
+                                "'{0}' can never be taken: every focus of one of its prerequisite " +
+                                "groups is mutually exclusive with it.", Name(focus))));
                     }
                 }
             }
@@ -236,15 +247,17 @@ namespace FocusTreeManager.Helper
                 {
                     broken.Add(focus);
                     issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                        "The position of '" + Name(focus) +
-                        "' is relative to a chain of focuses that loops."));
+                        LocalizationHelper.Tr("V_RelLoop",
+                            "The position of '{0}' is relative to a chain of focuses that loops.",
+                            Name(focus))));
                 }
                 else if (isOutside)
                 {
                     broken.Add(focus);
                     issues.Add(new ValidationIssue(ValidationSeverity.Error,
-                        "The position of '" + Name(focus) +
-                        "' is relative to a focus that is not in this tree."));
+                        LocalizationHelper.Tr("V_RelOutside",
+                            "The position of '{0}' is relative to a focus that is not in this tree.",
+                            Name(focus))));
                 }
             }
             return broken;
@@ -258,8 +271,9 @@ namespace FocusTreeManager.Helper
                 .Where(g => g.Count() > 1))
             {
                 issues.Add(new ValidationIssue(ValidationSeverity.Warning,
-                    "These focuses are on the same spot (" + group.Key.Key + ", " +
-                    group.Key.Value + "): " + string.Join(", ", group.Select(Name)) + "."));
+                    LocalizationHelper.Tr("V_Overlap",
+                        "These focuses are on the same spot ({0}, {1}): {2}.",
+                        group.Key.Key, group.Key.Value, string.Join(", ", group.Select(Name)))));
             }
         }
 
@@ -270,24 +284,29 @@ namespace FocusTreeManager.Helper
         {
             if (issues == null || issues.Count == 0)
             {
-                return "No problems found.";
+                return LocalizationHelper.Tr("V_None", "No problems found.");
             }
             int errors = issues.Count(i => i.Severity == ValidationSeverity.Error);
             int warnings = issues.Count - errors;
             StringBuilder text = new StringBuilder();
-            text.AppendLine(errors + " error(s), " + warnings + " warning(s).");
+            text.AppendLine(LocalizationHelper.Tr("V_Counts", "{0} error(s), {1} warning(s).",
+                errors, warnings));
             text.AppendLine();
             IEnumerable<ValidationIssue> ordered = issues
                 .OrderByDescending(i => i.Severity).Take(maxLines);
             foreach (ValidationIssue issue in ordered)
             {
-                text.AppendLine((issue.Severity == ValidationSeverity.Error ? "ERROR: " : "Warning: ")
-                    + issue.Message);
+                //XAML trims the spaces around a string, so the separator is added here
+                text.AppendLine((issue.Severity == ValidationSeverity.Error
+                    ? LocalizationHelper.Tr("V_Error", "ERROR:").TrimEnd()
+                    : LocalizationHelper.Tr("V_Warning", "Warning:").TrimEnd()) + " " +
+                    issue.Message);
             }
             if (issues.Count > maxLines)
             {
                 text.AppendLine();
-                text.AppendLine("... and " + (issues.Count - maxLines) + " more.");
+                text.AppendLine(LocalizationHelper.Tr("V_More", "... and {0} more.",
+                    issues.Count - maxLines));
             }
             return text.ToString();
         }
