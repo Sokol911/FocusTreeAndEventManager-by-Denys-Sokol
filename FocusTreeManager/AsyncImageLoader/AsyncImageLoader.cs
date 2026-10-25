@@ -30,6 +30,19 @@ namespace FocusTreeManager.AsyncImageLoader
             StarterWorker.RunWorkerCompleted += StarterWorker_RunWorkerCompleted;
             ModWorker = new BackgroundWorker();
             ModWorker.DoWork += ModWorker_DoWork;
+            ModWorker.RunWorkerCompleted += ModWorker_RunWorkerCompleted;
+        }
+
+        private bool restartModWorker;
+
+        private void ModWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //Another refresh was asked while this one was running
+            if (restartModWorker)
+            {
+                restartModWorker = false;
+                RefreshFromMods();
+            }
         }
 
         private void StarterWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs runWorkerCompletedEventArgs)
@@ -86,11 +99,24 @@ namespace FocusTreeManager.AsyncImageLoader
 
         public void StartTheJob()
         {
+            //RunWorkerAsync throws when the worker is already running
+            if (StarterWorker.IsBusy)
+            {
+                restartStarterWorker = true;
+                return;
+            }
             StarterWorker.RunWorkerAsync();
         }
 
         public void RefreshFromMods()
         {
+            //RunWorkerAsync throws when the worker is already running (e.g. a project opened
+            //or its mods edited while the images of the previous one are still loading)
+            if (ModWorker.IsBusy)
+            {
+                restartModWorker = true;
+                return;
+            }
             ModWorker.RunWorkerAsync();
         }
 

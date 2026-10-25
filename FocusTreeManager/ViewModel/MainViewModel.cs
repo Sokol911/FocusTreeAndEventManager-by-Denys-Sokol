@@ -123,6 +123,13 @@ namespace FocusTreeManager.ViewModel
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
             if (!isProjectExist || project == null) return;
+            //Never freeze the application in the middle of a drag, a selection or a pan
+            if (Mouse.LeftButton == MouseButtonState.Pressed ||
+                Mouse.MiddleButton == MouseButtonState.Pressed ||
+                Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                return;
+            }
             AutosaveHelper.Save(project);
         }
 

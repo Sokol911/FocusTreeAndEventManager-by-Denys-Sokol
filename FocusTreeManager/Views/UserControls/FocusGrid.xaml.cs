@@ -438,54 +438,6 @@ namespace FocusTreeManager.Views.UserControls
             }
         }
 
-        #region Pan with the left button
-
-        private bool IsPanning;
-
-        private ScrollViewer panViewer;
-
-        private Point panStartMouse;
-
-        private double panStartH;
-
-        private double panStartV;
-
-        private bool StartPan()
-        {
-            panViewer = FindScrollViewer();
-            if (panViewer == null) return false;
-            panStartMouse = Mouse.GetPosition(panViewer);
-            panStartH = panViewer.HorizontalOffset;
-            panStartV = panViewer.VerticalOffset;
-            IsPanning = true;
-            SelectionGrid.CaptureMouse();
-            SelectionGrid.Cursor = ((TextBlock)Resources["CursorGrabbing"]).Cursor;
-            return true;
-        }
-
-        private void ContinuePan()
-        {
-            if (Mouse.LeftButton != MouseButtonState.Pressed || panViewer == null)
-            {
-                EndPan();
-                return;
-            }
-            //The view follows the hand: the point that was grabbed stays under the mouse
-            Point now = Mouse.GetPosition(panViewer);
-            panViewer.ScrollToHorizontalOffset(panStartH + (panStartMouse.X - now.X));
-            panViewer.ScrollToVerticalOffset(panStartV + (panStartMouse.Y - now.Y));
-        }
-
-        private void EndPan()
-        {
-            IsPanning = false;
-            panViewer = null;
-            SelectionGrid.ReleaseMouseCapture();
-            SelectionGrid.Cursor = null;
-        }
-
-        #endregion
-
         private bool IsSelecting;
 
         private Point mouseDownPos;
@@ -500,13 +452,6 @@ namespace FocusTreeManager.Views.UserControls
             if (!(e.OriginalSource is GriddedGrid)) return;
             //Make sure we aren't dragging already
             if (IsDragging) return;
-            //Holding the button on an empty place moves the view (like grabbing the map),
-            //holding CTRL as well draws a selection box instead
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 && StartPan())
-            {
-                dataContext.ClearSelected();
-                return;
-            }
             // Capture and track the mouse.
             IsSelecting = true;
             //The foci cannot change while the selection box is being dragged, so their
@@ -529,11 +474,6 @@ namespace FocusTreeManager.Views.UserControls
 
         private void UIElement_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (IsPanning)
-            {
-                EndPan();
-                return;
-            }
             if (!IsSelecting) return;
             // Release the mouse capture and stop tracking it.
             IsSelecting = false;
@@ -617,11 +557,6 @@ namespace FocusTreeManager.Views.UserControls
 
         private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (IsPanning)
-            {
-                ContinuePan();
-                return;
-            }
             if (!IsSelecting) return;
             UpdateSelection(e.GetPosition(SelectionGrid));
         }

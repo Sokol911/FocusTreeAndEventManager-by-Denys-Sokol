@@ -67,10 +67,31 @@ namespace FocusTreeManager.Model
 
         public void DeleteSetRelations()
         {
-            Focus1.MutualyExclusive.Remove(this);
+            if (Focus1 == null && Focus2 == null)
+            {
+                //Already deleted (several lines of the same set under the mouse)
+                return;
+            }
+            RemoveFrom(Focus1);
+            RemoveFrom(Focus2);
             Focus1 = null;
-            Focus2.MutualyExclusive.Remove(this);
             Focus2 = null;
+        }
+
+        //The set implements IEquatable, so Collection.Remove(this) removes the FIRST EQUAL set,
+        //which can be another instance with the same two foci. The instance being deleted then
+        //stayed in the other focus with its foci cleared and the next redraw crashed on it.
+        //Remove exactly this instance instead.
+        private void RemoveFrom(FocusModel focus)
+        {
+            if (focus?.MutualyExclusive == null) return;
+            for (int i = focus.MutualyExclusive.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(focus.MutualyExclusive[i], this))
+                {
+                    focus.MutualyExclusive.RemoveAt(i);
+                }
+            }
         }
 
         public bool Equals(MutuallyExclusiveSetModel obj)

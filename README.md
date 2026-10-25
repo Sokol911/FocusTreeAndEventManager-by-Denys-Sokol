@@ -8,7 +8,7 @@ This project is a fork of [pongmadee/FocusTreeAndEventManager](https://github.co
 
 ### Changes in this fork
 - Faster focus tree editor, zoom of the grid (Ctrl + wheel, Ctrl+0), "zoom to fit"
-- Pan the focus view by holding the left mouse button, Ctrl + drag selection box, edge auto-scroll while dragging
+- Pan the focus view by holding the mouse wheel (middle button), drag selection box with the left button, edge auto-scroll while dragging
 - Tree validator (loops, duplicates, useless links)
 - Autosave with recovery of the project after a crash
 - Fixed Ctrl+Z crash, wrong working directory and missing tutorial locale

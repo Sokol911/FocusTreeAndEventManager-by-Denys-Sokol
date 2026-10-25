@@ -900,6 +900,7 @@ namespace FocusTreeManager.Model.TabModels
             HashSet<LineKey> keys = new HashSet<LineKey>();
             foreach (FocusModel focus in FociList)
             {
+                if (focus == null) continue;
                 //Draw relatives
                 if (DrawPositionLines && focus.CoordinatesRelativeTo != null)
                 {
@@ -914,6 +915,8 @@ namespace FocusTreeManager.Model.TabModels
                 //Draw Prerequisites
                 foreach (PrerequisitesSetModel set in focus.Prerequisite)
                 {
+                    //A set that lost its focus (deleted) must not be drawn
+                    if (set?.Focus == null || set.FociList == null) continue;
                     //Draw line from top of first Focus 
                     CanvasLine newline = new CanvasLine(
                         set.Focus.FocusTop.X,
@@ -943,6 +946,8 @@ namespace FocusTreeManager.Model.TabModels
                 //Draw Mutually exclusives
                 foreach (MutuallyExclusiveSetModel set in focus.MutualyExclusive)
                 {
+                    //A set that lost one of its foci (deleted) must not be drawn
+                    if (set?.Focus1 == null || set.Focus2 == null) continue;
                     CanvasLine newline = new CanvasLine(
                         set.Focus1.FocusRight.X,
                         set.Focus1.FocusRight.Y,
