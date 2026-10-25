@@ -243,4 +243,9 @@
     <system:String x:Key="Live_DupTree">ID „{0}“ naudojamas ir medyje „{1}“. Fokusų ID turi būti unikalūs visuose medžiuose.</system:String>
     <system:String x:Key="Live_TextSpace">Teksto raktas „{0}“ turi tarpą. Lokalizacijos raktuose tarpų būti negali; vietoj jų naudokite _.</system:String>
     <system:String x:Key="Live_Overlap">Šis fokusas yra toje pačioje vietoje ({0}, {1}) kaip „{2}“.</system:String>
+    <system:String x:Key="Application_Autosave">Automatinis išsaugojimas</system:String>
+    <system:String x:Key="Autosave_Enabled">Įjungta</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Intervalas (min.)</system:String>
+    <system:String x:Key="Autosave_Done">Automatiškai išsaugota {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Automatinis išsaugojimas nepavyko</system:String>
 </ResourceDictionary>

@@ -112,13 +112,76 @@ namespace FocusTreeManager.ViewModel
             if (Application.Current != null)
             {
                 autosaveTimer = new DispatcherTimer(DispatcherPriority.Background,
-                    Application.Current.Dispatcher) { Interval = AutosaveHelper.Interval };
+                    Application.Current.Dispatcher);
                 autosaveTimer.Tick += AutosaveTimer_Tick;
-                autosaveTimer.Start();
+                autosaveNoticeTimer = new DispatcherTimer(DispatcherPriority.Background,
+                    Application.Current.Dispatcher) { Interval = TimeSpan.FromSeconds(3) };
+                autosaveNoticeTimer.Tick += (s, e) =>
+                {
+                    autosaveNoticeTimer.Stop();
+                    IsAutosaveNoticeVisible = false;
+                };
+                ApplyAutosaveSettings();
             }
         }
 
         private DispatcherTimer autosaveTimer;
+
+        private DispatcherTimer autosaveNoticeTimer;
+
+        private bool isAutosaveNoticeVisible;
+
+        /// <summary>True while the "autosaved" notice is shown in the corner of the window.</summary>
+        public bool IsAutosaveNoticeVisible
+        {
+            get { return isAutosaveNoticeVisible; }
+            private set
+            {
+                if (isAutosaveNoticeVisible == value) return;
+                isAutosaveNoticeVisible = value;
+                RaisePropertyChanged(() => IsAutosaveNoticeVisible);
+            }
+        }
+
+        private string autosaveNotice;
+
+        public string AutosaveNotice
+        {
+            get { return autosaveNotice; }
+            private set
+            {
+                autosaveNotice = value;
+                RaisePropertyChanged(() => AutosaveNotice);
+            }
+        }
+
+        /// <summary>
+        /// Applies the autosave options from the settings (on/off and interval).
+        /// Called at start-up and each time the user changes them.
+        /// </summary>
+        public void ApplyAutosaveSettings()
+        {
+            if (autosaveTimer == null) return;
+            autosaveTimer.Stop();
+            if (!AutosaveHelper.Enabled) return;
+            autosaveTimer.Interval = AutosaveHelper.Interval;
+            autosaveTimer.Start();
+        }
+
+        private void ShowAutosaveNotice(bool success)
+        {
+            AutosaveNotice = success
+                ? LocalizationHelper.Tr("Autosave_Done", "Autosaved at {0}",
+                    DateTime.Now.ToString("HH:mm:ss"))
+                : LocalizationHelper.Tr("Autosave_Failed", "Autosave failed");
+            IsAutosaveNoticeVisible = false;
+            IsAutosaveNoticeVisible = true;
+            if (autosaveNoticeTimer != null)
+            {
+                autosaveNoticeTimer.Stop();
+                autosaveNoticeTimer.Start();
+            }
+        }
 
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
@@ -130,7 +193,7 @@ namespace FocusTreeManager.ViewModel
             {
                 return;
             }
-            AutosaveHelper.Save(project);
+            ShowAutosaveNotice(AutosaveHelper.Save(project));
         }
 
         async private void checkBeforeContinuing(string command)

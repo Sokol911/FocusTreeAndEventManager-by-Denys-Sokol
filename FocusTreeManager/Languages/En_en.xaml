@@ -246,4 +246,9 @@
     <system:String x:Key="Live_DupTree">The id '{0}' is also used in the tree '{1}'. Focus ids must be unique across all trees.</system:String>
     <system:String x:Key="Live_TextSpace">The text key '{0}' contains a space. Localisation keys must not contain spaces; use _ instead.</system:String>
     <system:String x:Key="Live_Overlap">This focus is on the same spot ({0}, {1}) as '{2}'.</system:String>
+    <system:String x:Key="Application_Autosave">Autosave</system:String>
+    <system:String x:Key="Autosave_Enabled">Enabled</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Interval (min)</system:String>
+    <system:String x:Key="Autosave_Done">Autosaved at {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Autosave failed</system:String>
 </ResourceDictionary>

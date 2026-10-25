@@ -64,6 +64,43 @@ namespace FocusTreeManager.ViewModel
             }
         }
 
+        public bool AutosaveEnabled
+        {
+            get { return Configurator.getAutosaveEnabled(); }
+            set
+            {
+                Configurator.setAutosaveEnabled(value);
+                RaisePropertyChanged(() => AutosaveEnabled);
+                ApplyAutosave();
+            }
+        }
+
+        /// <summary>Intervals (in minutes) offered in the settings window.</summary>
+        public List<int> AutosaveChoices { get; private set; }
+
+        public int AutosaveMinutes
+        {
+            get { return Configurator.getAutosaveMinutes(); }
+            set
+            {
+                Configurator.setAutosaveMinutes(value);
+                RaisePropertyChanged(() => AutosaveMinutes);
+                ApplyAutosave();
+            }
+        }
+
+        private void ApplyAutosave()
+        {
+            try
+            {
+                ViewModelLocator.Instance.Main.ApplyAutosaveSettings();
+            }
+            catch (Exception)
+            {
+                //The new values are applied at the next start at the latest
+            }
+        }
+
         public string Message { get; }
 
         public RelayCommand FindCommand { get; private set; }
@@ -77,6 +114,12 @@ namespace FocusTreeManager.ViewModel
             selectedLanguage = AvailableLanguages.SingleOrDefault(l => l.FileName ==
                 Configurator.getLanguage());
             FindCommand = new RelayCommand(SelectGameFolder);
+            AutosaveChoices = new List<int> { 1, 2, 3, 5, 10, 15, 20, 30, 45, 60 };
+            if (!AutosaveChoices.Contains(Configurator.getAutosaveMinutes()))
+            {
+                AutosaveChoices.Add(Configurator.getAutosaveMinutes());
+                AutosaveChoices.Sort();
+            }
             if (!Configurator.getFirstStart())
             {
                 Message = LocalizationHelper.getValueForKey("First_Start");

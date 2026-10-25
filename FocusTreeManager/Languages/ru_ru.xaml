@@ -243,4 +243,9 @@
     <system:String x:Key="Live_DupTree">Id «{0}» используется и в дереве «{1}». Id фокусов должны быть уникальны во всех деревьях.</system:String>
     <system:String x:Key="Live_TextSpace">Ключ текста «{0}» содержит пробел. В ключах локализации пробелов быть не должно; используйте вместо них _.</system:String>
     <system:String x:Key="Live_Overlap">Этот фокус стоит в той же точке ({0}, {1}), что и «{2}».</system:String>
+    <system:String x:Key="Application_Autosave">Автосохранение</system:String>
+    <system:String x:Key="Autosave_Enabled">Включено</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Интервал (мин)</system:String>
+    <system:String x:Key="Autosave_Done">Автосохранено в {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Не удалось выполнить автосохранение</system:String>
 </ResourceDictionary>

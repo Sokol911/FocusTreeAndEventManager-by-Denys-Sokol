@@ -249,4 +249,9 @@
     <system:String x:Key="Live_DupTree">L'id « {0} » est aussi utilisé dans l'arbre « {1} ». Les ids de focus doivent être uniques dans tous les arbres.</system:String>
     <system:String x:Key="Live_TextSpace">La clé de texte « {0} » contient une espace. Les clés de localisation ne doivent pas en contenir ; utilisez _ à la place.</system:String>
     <system:String x:Key="Live_Overlap">Ce focus est au même endroit ({0}, {1}) que « {2} ».</system:String>
+    <system:String x:Key="Application_Autosave">Sauvegarde automatique</system:String>
+    <system:String x:Key="Autosave_Enabled">Activée</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Intervalle (min)</system:String>
+    <system:String x:Key="Autosave_Done">Sauvegarde automatique à {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Échec de la sauvegarde automatique</system:String>
 </ResourceDictionary>

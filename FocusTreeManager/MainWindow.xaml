@@ -257,5 +257,35 @@
         <vu:TutorialButton LinkedElement="{Binding ElementName=MainGrid}"
                                                HorizontalAlignment="Left"
                                                VerticalAlignment="Top"/>
+        <!-- Short notice shown each time the project is autosaved -->
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,25,45"
+                Padding="14,8" CornerRadius="3" IsHitTestVisible="False" Opacity="0"
+                Panel.ZIndex="100" Background="{DynamicResource AccentColorBrush}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsAutosaveNoticeVisible}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         To="0.95" Duration="0:0:0.2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                         To="0" Duration="0:0:0.7"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding AutosaveNotice}" Foreground="White" FontSize="14"/>
+        </Border>
     </Grid>
 </Controls:MetroWindow>

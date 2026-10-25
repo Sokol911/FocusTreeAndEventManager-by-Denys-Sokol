@@ -243,4 +243,9 @@
     <system:String x:Key="Live_DupTree">«{0}» ID-і «{1}» ағашында да қолданылады. Фокус ID-лері барлық ағаштарда бірегей болуы керек.</system:String>
     <system:String x:Key="Live_TextSpace">«{0}» мәтін кілтінде бос орын бар. Локализация кілттерінде бос орын болмауы керек; оның орнына _ қолданыңыз.</system:String>
     <system:String x:Key="Live_Overlap">Бұл фокус «{2}» фокусымен бір орында ({0}, {1}) тұр.</system:String>
+    <system:String x:Key="Application_Autosave">Автоматты сақтау</system:String>
+    <system:String x:Key="Autosave_Enabled">Қосулы</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Аралық (мин)</system:String>
+    <system:String x:Key="Autosave_Done">Автоматты түрде сақталды: {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Автоматты сақтау орындалмады</system:String>
 </ResourceDictionary>

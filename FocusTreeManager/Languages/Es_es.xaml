@@ -243,4 +243,9 @@
     <system:String x:Key="Live_DupTree">El id «{0}» también se usa en el árbol «{1}». Los ids de objetivo deben ser únicos en todos los árboles.</system:String>
     <system:String x:Key="Live_TextSpace">La clave de texto «{0}» contiene un espacio. Las claves de localización no deben tener espacios; usa _ en su lugar.</system:String>
     <system:String x:Key="Live_Overlap">Este objetivo está en el mismo sitio ({0}, {1}) que «{2}».</system:String>
+    <system:String x:Key="Application_Autosave">Autoguardado</system:String>
+    <system:String x:Key="Autosave_Enabled">Activado</system:String>
+    <system:String x:Key="Application_Autosave_Interval">Intervalo (min)</system:String>
+    <system:String x:Key="Autosave_Done">Autoguardado a las {0}</system:String>
+    <system:String x:Key="Autosave_Failed">Error en el autoguardado</system:String>
 </ResourceDictionary>

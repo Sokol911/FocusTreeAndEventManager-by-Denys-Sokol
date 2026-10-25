@@ -94,5 +94,29 @@ namespace FocusTreeManager.Properties {
                 this["EditorShowPlan"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutosaveEnabled {
+            get {
+                return ((bool)(this["AutosaveEnabled"]));
+            }
+            set {
+                this["AutosaveEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int AutosaveMinutes {
+            get {
+                return ((int)(this["AutosaveMinutes"]));
+            }
+            set {
+                this["AutosaveMinutes"] = value;
+            }
+        }
     }
 }

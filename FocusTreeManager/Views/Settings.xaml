@@ -59,6 +59,8 @@
             <RowDefinition Height="35" />
             <RowDefinition Height="35" />
             <RowDefinition Height="35" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="35" />
         </Grid.RowDefinitions>
         <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="{Binding Message}" />
         <Label Grid.Column="0" Grid.Row="1" Content="{DynamicResource Application_Language}" />
@@ -76,7 +78,14 @@
             <ComboBoxItem Content="Scripter"/>
             <ComboBoxItem Content="Editor"/>
         </ComboBox>
-        <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" 
+        <Label Grid.Column="0" Grid.Row="5" Content="{DynamicResource Application_Autosave}" />
+        <CheckBox Grid.Column="1" Grid.Row="5" Content="{DynamicResource Autosave_Enabled}"
+                  IsChecked="{Binding AutosaveEnabled}" VerticalAlignment="Center"/>
+        <Label Grid.Column="0" Grid.Row="6" Content="{DynamicResource Application_Autosave_Interval}" />
+        <ComboBox Grid.Column="1" Grid.Row="6" ItemsSource="{Binding AutosaveChoices}"
+                  SelectedItem="{Binding AutosaveMinutes}"
+                  IsEnabled="{Binding AutosaveEnabled}"/>
+        <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" 
                 Content="{DynamicResource Command_Accept}" Click="Button_Click"
                 Style="{DynamicResource AppButtonStyle}" Width="150"/>
     </Grid>

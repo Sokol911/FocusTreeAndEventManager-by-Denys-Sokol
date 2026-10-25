@@ -15,7 +15,16 @@ namespace FocusTreeManager.Helper
     /// </summary>
     public static class AutosaveHelper
     {
-        public static readonly TimeSpan Interval = TimeSpan.FromMinutes(3);
+        /// <summary>Interval chosen by the user in the settings.</summary>
+        public static TimeSpan Interval
+        {
+            get { return TimeSpan.FromMinutes(Configurator.getAutosaveMinutes()); }
+        }
+
+        public static bool Enabled
+        {
+            get { return Configurator.getAutosaveEnabled(); }
+        }
 
         private static string RecoveryFolder
         {
@@ -51,9 +60,10 @@ namespace FocusTreeManager.Helper
                 name + "_" + HashOf(Path.GetFullPath(projectPath)) + ".xh4prj.autosave");
         }
 
-        public static void Save(ProjectModel model)
+        /// <summary>Returns true when the recovery copy was written.</summary>
+        public static bool Save(ProjectModel model)
         {
-            if (model == null || string.IsNullOrEmpty(model.Filename)) return;
+            if (model == null || string.IsNullOrEmpty(model.Filename)) return false;
             try
             {
                 Directory.CreateDirectory(RecoveryFolder);
@@ -70,10 +80,12 @@ namespace FocusTreeManager.Helper
                     File.Delete(target);
                 }
                 File.Move(temp, target);
+                return true;
             }
             catch (Exception)
             {
                 //The autosave must never disturb the user
+                return false;
             }
         }
 

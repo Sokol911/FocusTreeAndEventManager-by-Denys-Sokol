@@ -88,5 +88,35 @@ namespace FocusTreeManager
         {
             return Properties.Settings.Default.EditorShowPlan;
         }
+
+        public const int AutosaveMinMinutes = 1;
+
+        public const int AutosaveMaxMinutes = 60;
+
+        public static bool getAutosaveEnabled()
+        {
+            return Properties.Settings.Default.AutosaveEnabled;
+        }
+
+        public static void setAutosaveEnabled(bool enabled)
+        {
+            Properties.Settings.Default.AutosaveEnabled = enabled;
+            Properties.Settings.Default.Save();
+        }
+
+        public static int getAutosaveMinutes()
+        {
+            int minutes = Properties.Settings.Default.AutosaveMinutes;
+            return minutes < AutosaveMinMinutes ? AutosaveMinMinutes :
+                   minutes > AutosaveMaxMinutes ? AutosaveMaxMinutes : minutes;
+        }
+
+        public static void setAutosaveMinutes(int minutes)
+        {
+            minutes = minutes < AutosaveMinMinutes ? AutosaveMinMinutes :
+                      minutes > AutosaveMaxMinutes ? AutosaveMaxMinutes : minutes;
+            Properties.Settings.Default.AutosaveMinutes = minutes;
+            Properties.Settings.Default.Save();
+        }
     }
 }
