@@ -240,4 +240,13 @@
     <system:String x:Key="Restore_Project">Projet : {0}</system:String>
     <system:String x:Key="Restore_Saved">Sauvegarde enregistrée : {0}</system:String>
     <system:String x:Key="Restore_Question">Restaurer la sauvegarde ? (Choisissez Non pour ouvrir le fichier du projet tel quel.)</system:String>
+    <system:String x:Key="Live_Empty">L'id du focus est vide.</system:String>
+    <system:String x:Key="Live_Space">L'id « {0} » contient une espace : le jeu le lit comme plusieurs mots. Utilisez _ à la place, par exemple « {1} ».</system:String>
+    <system:String x:Key="Live_Chars">L'id contient des caractères risqués dans les scripts du jeu : {0}. Utilisez uniquement des lettres latines, des chiffres et _.</system:String>
+    <system:String x:Key="Live_Digit">L'id commence par un chiffre, que le jeu peut lire comme un nombre.</system:String>
+    <system:String x:Key="Live_Dup">Un autre focus de cet arbre utilise déjà l'id « {0} ».</system:String>
+    <system:String x:Key="Live_DupCase">Un autre focus a le même id, à la casse près (« {0} »).</system:String>
+    <system:String x:Key="Live_DupTree">L'id « {0} » est aussi utilisé dans l'arbre « {1} ». Les ids de focus doivent être uniques dans tous les arbres.</system:String>
+    <system:String x:Key="Live_TextSpace">La clé de texte « {0} » contient une espace. Les clés de localisation ne doivent pas en contenir ; utilisez _ à la place.</system:String>
+    <system:String x:Key="Live_Overlap">Ce focus est au même endroit ({0}, {1}) que « {2} ».</system:String>
 </ResourceDictionary>

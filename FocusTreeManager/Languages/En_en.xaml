@@ -237,4 +237,13 @@
     <system:String x:Key="Restore_Project">Project: {0}</system:String>
     <system:String x:Key="Restore_Saved">Backup saved at: {0}</system:String>
     <system:String x:Key="Restore_Question">Restore the backup? (Choose No to open the project file as it is.)</system:String>
+    <system:String x:Key="Live_Empty">The focus id is empty.</system:String>
+    <system:String x:Key="Live_Space">The id '{0}' contains a space, so the game reads it as several words. Use _ instead, e.g. '{1}'.</system:String>
+    <system:String x:Key="Live_Chars">The id contains characters that are risky in game scripts: {0}. Use only Latin letters, digits and _.</system:String>
+    <system:String x:Key="Live_Digit">The id starts with a digit, which the game may read as a number.</system:String>
+    <system:String x:Key="Live_Dup">Another focus in this tree already uses the id '{0}'.</system:String>
+    <system:String x:Key="Live_DupCase">Another focus has the same id except for letter case ('{0}').</system:String>
+    <system:String x:Key="Live_DupTree">The id '{0}' is also used in the tree '{1}'. Focus ids must be unique across all trees.</system:String>
+    <system:String x:Key="Live_TextSpace">The text key '{0}' contains a space. Localisation keys must not contain spaces; use _ instead.</system:String>
+    <system:String x:Key="Live_Overlap">This focus is on the same spot ({0}, {1}) as '{2}'.</system:String>
 </ResourceDictionary>

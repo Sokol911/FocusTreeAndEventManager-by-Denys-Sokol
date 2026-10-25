@@ -234,4 +234,13 @@
     <system:String x:Key="Restore_Project">Жоба: {0}</system:String>
     <system:String x:Key="Restore_Saved">Сақтық көшірме сақталған уақыты: {0}</system:String>
     <system:String x:Key="Restore_Question">Сақтық көшірмені қалпына келтіру керек пе? (Жоба файлын сол күйінде ашу үшін «Жоқ» таңдаңыз.)</system:String>
+    <system:String x:Key="Live_Empty">Фокус ID-і бос.</system:String>
+    <system:String x:Key="Live_Space">«{0}» ID-інде бос орын бар, сондықтан ойын оны бірнеше сөз деп оқиды. Оның орнына _ қолданыңыз, мысалы «{1}».</system:String>
+    <system:String x:Key="Live_Chars">ID-де ойын скрипттерінде қауіпті таңбалар бар: {0}. Тек латын әріптерін, цифрларды және _ қолданыңыз.</system:String>
+    <system:String x:Key="Live_Digit">ID цифрдан басталады, ойын оны сан деп оқуы мүмкін.</system:String>
+    <system:String x:Key="Live_Dup">Осы ағаштағы басқа фокус «{0}» ID-ін қолданып тұр.</system:String>
+    <system:String x:Key="Live_DupCase">Басқа фокустың ID-і дәл осындай, тек әріп регистрі өзгеше («{0}»).</system:String>
+    <system:String x:Key="Live_DupTree">«{0}» ID-і «{1}» ағашында да қолданылады. Фокус ID-лері барлық ағаштарда бірегей болуы керек.</system:String>
+    <system:String x:Key="Live_TextSpace">«{0}» мәтін кілтінде бос орын бар. Локализация кілттерінде бос орын болмауы керек; оның орнына _ қолданыңыз.</system:String>
+    <system:String x:Key="Live_Overlap">Бұл фокус «{2}» фокусымен бір орында ({0}, {1}) тұр.</system:String>
 </ResourceDictionary>

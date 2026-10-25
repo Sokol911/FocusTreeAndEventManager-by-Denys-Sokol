@@ -234,4 +234,13 @@
     <system:String x:Key="Restore_Project">Proyecto: {0}</system:String>
     <system:String x:Key="Restore_Saved">Copia guardada: {0}</system:String>
     <system:String x:Key="Restore_Question">¿Restaurar la copia? (Elija No para abrir el archivo del proyecto tal cual.)</system:String>
+    <system:String x:Key="Live_Empty">El id del objetivo está vacío.</system:String>
+    <system:String x:Key="Live_Space">El id «{0}» contiene un espacio, así que el juego lo lee como varias palabras. Usa _ en su lugar, por ejemplo «{1}».</system:String>
+    <system:String x:Key="Live_Chars">El id contiene caracteres arriesgados en los scripts del juego: {0}. Usa solo letras latinas, dígitos y _.</system:String>
+    <system:String x:Key="Live_Digit">El id empieza por un dígito, y el juego podría leerlo como un número.</system:String>
+    <system:String x:Key="Live_Dup">Otro objetivo de este árbol ya usa el id «{0}».</system:String>
+    <system:String x:Key="Live_DupCase">Otro objetivo tiene el mismo id salvo por mayúsculas y minúsculas («{0}»).</system:String>
+    <system:String x:Key="Live_DupTree">El id «{0}» también se usa en el árbol «{1}». Los ids de objetivo deben ser únicos en todos los árboles.</system:String>
+    <system:String x:Key="Live_TextSpace">La clave de texto «{0}» contiene un espacio. Las claves de localización no deben tener espacios; usa _ en su lugar.</system:String>
+    <system:String x:Key="Live_Overlap">Este objetivo está en el mismo sitio ({0}, {1}) que «{2}».</system:String>
 </ResourceDictionary>

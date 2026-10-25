@@ -234,4 +234,13 @@
     <system:String x:Key="Restore_Project">Проект: {0}</system:String>
     <system:String x:Key="Restore_Saved">Копия сохранена: {0}</system:String>
     <system:String x:Key="Restore_Question">Восстановить резервную копию? (Выберите «Нет», чтобы открыть файл проекта как есть.)</system:String>
+    <system:String x:Key="Live_Empty">Id фокуса пуст.</system:String>
+    <system:String x:Key="Live_Space">Id «{0}» содержит пробел, поэтому игра прочитает его как несколько слов. Используйте вместо него _, например «{1}».</system:String>
+    <system:String x:Key="Live_Chars">В id есть символы, рискованные для скриптов игры: {0}. Используйте только латинские буквы, цифры и _.</system:String>
+    <system:String x:Key="Live_Digit">Id начинается с цифры, и игра может прочитать его как число.</system:String>
+    <system:String x:Key="Live_Dup">Другой фокус этого дерева уже использует id «{0}».</system:String>
+    <system:String x:Key="Live_DupCase">У другого фокуса такой же id, отличающийся только регистром («{0}»).</system:String>
+    <system:String x:Key="Live_DupTree">Id «{0}» используется и в дереве «{1}». Id фокусов должны быть уникальны во всех деревьях.</system:String>
+    <system:String x:Key="Live_TextSpace">Ключ текста «{0}» содержит пробел. В ключах локализации пробелов быть не должно; используйте вместо них _.</system:String>
+    <system:String x:Key="Live_Overlap">Этот фокус стоит в той же точке ({0}, {1}), что и «{2}».</system:String>
 </ResourceDictionary>

@@ -192,6 +192,9 @@
     <Compile Include="DataContract\ScriptContainer.cs" />
     <Compile Include="Helper\LoggingHelper.cs" />
     <Compile Include="Helper\SerializationHelper.cs" />
+    <Compile Include="Helper\AutosaveHelper.cs" />
+    <Compile Include="Helper\FocusLiveChecker.cs" />
+    <Compile Include="Helper\FocusTreeValidator.cs" />
     <Compile Include="Model\EventModel.cs" />
     <Compile Include="Model\EventDescriptionModel.cs" />
     <Compile Include="Model\EventOptionModel.cs" />

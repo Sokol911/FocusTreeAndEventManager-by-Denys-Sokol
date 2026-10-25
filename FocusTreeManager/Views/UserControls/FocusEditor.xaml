@@ -10,6 +10,7 @@
              DataContext="{Binding EditFocus, Source={StaticResource Locator}}">
     <UserControl.Resources>
         <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <Style x:Key="ControlStyle" TargetType="Control">
                 <Setter Property="HorizontalAlignment" Value="Left"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -56,6 +57,7 @@
             <RowDefinition Height="120"/>
             <RowDefinition Height="35"/>
             <RowDefinition Height="120"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="35"/>
         </Grid.RowDefinitions>
         <Label Content="{DynamicResource Focus_Unique_Name}" 
@@ -141,8 +143,37 @@
                 Content="{DynamicResource Command_Accept}" Command="{Binding FocusCommand}" 
                 DataContext="{Binding RelativeSource={RelativeSource FindAncestor, 
                     AncestorType={x:Type UserControl}}, Path=DataContext}"
-                Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" 
+                Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" 
                 IsDefault="True"/>
+        <!-- Live warnings about the focus being edited (empty id, space in the id, duplicates...) -->
+        <ScrollViewer Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Width="380" MaxHeight="150"
+                      Margin="0,6,0,0" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled" x:Name="IssuesViewer">
+            <ItemsControl ItemsSource="{Binding DataContext.Issues, 
+                RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Mark" Text="&#x26A0;" FontFamily="Segoe UI Symbol"
+                                       Foreground="#E8B33A" VerticalAlignment="Top"/>
+                            <TextBlock x:Name="Message" Grid.Column="1" Text="{Binding Message}"
+                                       TextWrapping="Wrap" Foreground="#E8B33A"/>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                <Setter TargetName="Mark" Property="Text" Value="&#x2716;"/>
+                                <Setter TargetName="Mark" Property="Foreground" Value="#FF5A4D"/>
+                                <Setter TargetName="Message" Property="Foreground" Value="#FF5A4D"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
         <Canvas Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="9">
             <Button Style="{DynamicResource MetroCircleButtonStyle}"
                     Width="36" x:Name="VisibleNameButton"
@@ -170,6 +201,14 @@
                     </Rectangle.OpacityMask>
                 </Rectangle>
             </Button>
+            <TextBlock Text="&#x26A0;" FontFamily="Segoe UI Symbol" FontSize="18"
+                       Canvas.Left="330" Canvas.Top="4" Foreground="#E8B33A"
+                       x:Name="IdWarningMark"
+                       ToolTip="{Binding DataContext.Issues[0].Message, 
+                           RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"
+                       Visibility="{Binding DataContext.HasIssues, 
+                           RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}},
+                           Converter={StaticResource BoolToVis}}"/>
             <uc:Localizator x:Name="Localizator" Visibility="Hidden"></uc:Localizator>
         </Canvas>
     </Grid>

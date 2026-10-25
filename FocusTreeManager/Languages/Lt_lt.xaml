@@ -234,4 +234,13 @@
     <system:String x:Key="Restore_Project">Projektas: {0}</system:String>
     <system:String x:Key="Restore_Saved">Atsarginė kopija įrašyta: {0}</system:String>
     <system:String x:Key="Restore_Question">Atkurti atsarginę kopiją? (Pasirinkite Ne, kad projekto failas būtų atidarytas toks, koks yra.)</system:String>
+    <system:String x:Key="Live_Empty">Fokuso ID tuščias.</system:String>
+    <system:String x:Key="Live_Space">ID „{0}“ turi tarpą, todėl žaidimas jį skaito kaip kelis žodžius. Vietoj to naudokite _, pavyzdžiui, „{1}“.</system:String>
+    <system:String x:Key="Live_Chars">ID yra simbolių, kurie rizikingi žaidimo skriptuose: {0}. Naudokite tik lotyniškas raides, skaitmenis ir _.</system:String>
+    <system:String x:Key="Live_Digit">ID prasideda skaitmeniu, o žaidimas gali jį perskaityti kaip skaičių.</system:String>
+    <system:String x:Key="Live_Dup">Kitas šio medžio fokusas jau naudoja ID „{0}“.</system:String>
+    <system:String x:Key="Live_DupCase">Kitas fokusas turi tokį patį ID, besiskiriantį tik raidžių dydžiu („{0}“).</system:String>
+    <system:String x:Key="Live_DupTree">ID „{0}“ naudojamas ir medyje „{1}“. Fokusų ID turi būti unikalūs visuose medžiuose.</system:String>
+    <system:String x:Key="Live_TextSpace">Teksto raktas „{0}“ turi tarpą. Lokalizacijos raktuose tarpų būti negali; vietoj jų naudokite _.</system:String>
+    <system:String x:Key="Live_Overlap">Šis fokusas yra toje pačioje vietoje ({0}, {1}) kaip „{2}“.</system:String>
 </ResourceDictionary>
